@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing - AI Image Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="16x16" href="Media/image.png?v=2">
+    <link rel="icon" type="image/png" sizes="32x32" href="Media/image.png?v=2">
+    <link rel="shortcut icon" href="Media/image.png?v=2">
+    <link rel="apple-touch-icon" sizes="180x180" href="Media/image.png?v=2">
+    <meta name="theme-color" content="#0f0f13">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f0f13;
+            color: #e2e2e2;
+            min-height: 100vh;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(90deg, #a78bfa, #c4b5fd);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.3);
+        }
+        
+        .nav-link:hover {
+            color: #8b5cf6;
+        }
+        
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        /* Mobile-specific improvements */
+        @media (max-width: 768px) {
+            .pricing-card:hover {
+                transform: none;
+            }
+            
+            /* Improve touch targets */
+            button, .btn-primary, .btn-secondary {
+                min-height: 44px;
+            }
+            
+            /* Better spacing for mobile */
+            .pricing-card {
+                padding: 1.5rem !important;
+            }
+            
+            /* Ensure proper text sizing on mobile */
+            .text-4xl {
+                font-size: 2rem !important;
+            }
+            
+            .text-2xl {
+                font-size: 1.5rem !important;
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .slide-up {
+            animation: slideUp 0.5s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .input-field {
+            background-color: #1a1a23;
+            transition: all 0.3s ease;
+        }
+        
+        .input-field:focus {
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+        }
+        
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.5), transparent);
+        }
+
+        /* Mobile/light tweaks */
+        @media (max-width: 640px) {
+            body { background-color: #14141b; }
+            .gradient-text {
+                background: none !important;
+                -webkit-background-clip: initial;
+                background-clip: initial;
+                -webkit-text-fill-color: inherit;
+                color: #f3f4f6;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Global background gradient overlay -->
+    <div class="fixed inset-0 -z-10 pointer-events-none bg-gradient-to-br from-purple-900/20 via-transparent to-blue-900/20"></div>
+    <!-- Navigation -->
+    <nav class="bg-gray-900/80 backdrop-blur-md fixed w-full z-50 border-b border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <span class="text-2xl font-bold gradient-text">Perseptra</span>
+                    </div>
+                                         <div class="hidden md:block">
+                         <div class="ml-10 flex items-baseline space-x-4">
+                             <a href="index.html" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white transition duration-300">Home</a>
+                             <a href="image.html" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white transition duration-300">Image Generator</a>
+                             <a href="video.html" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white transition duration-300">Video Generator</a>
+                             <a href="pricing.html" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-white bg-purple-600/20 rounded-md">Pricing</a>
+                             
+                         </div>
+                     </div>
+                 </div>
+                 <div class="hidden md:block">
+                    <!-- Signed-out state -->
+                    <div id="auth-signed-out" class="ml-4 flex items-center md:ml-6">
+                        <button class="px-4 py-2 rounded-md text-sm font-medium text-white bg-transparent border border-gray-700 hover:bg-gray-800 transition duration-300 mr-3" onclick="showLoginModal()">
+                            Login
+                        </button>
+                        <button class="btn-primary px-4 py-2 rounded-md text-sm font-medium text-white" onclick="showSignupModal()">
+                            Sign Up
+                        </button>
+                    </div>
+                    <!-- Signed-in state -->
+                    <div id="auth-signed-in" class="ml-4 items-center md:ml-6 hidden">
+                        <div class="relative">
+                            <button id="user-menu-button" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-800 transition">
+                                <span id="user-avatar" class="h-8 w-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-xs font-semibold text-white"></span>
+                                <span id="user-display-name" class="text-sm font-medium"></span>
+                                <!-- Credits Display -->
+                                <div class="flex items-center gap-1.5 px-2 py-1 bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border border-yellow-500/30 rounded-md">
+                                    <i class="fas fa-coins text-yellow-400 text-xs"></i>
+                                    <span id="nav-credits" class="text-xs font-semibold text-yellow-300">0</span>
+                                </div>
+                                <i class="fas fa-chevron-down text-xs text-gray-400 ml-1"></i>
+                            </button>
+                            <div id="user-menu" class="absolute right-0 mt-2 w-52 bg-gray-900 border border-gray-800 rounded-md shadow-xl py-1 hidden">
+                                <button class="w-full text-left px-4 py-2 text-sm hover:bg-gray-800" onclick="showPage('settings'); document.getElementById('user-menu').classList.add('hidden');">
+                                    <i class="fas fa-user-cog mr-2"></i> Settings
+                                </button>
+                                <button class="w-full text-left px-4 py-2 text-sm hover:bg-gray-800" onclick="showPage('my-content'); document.getElementById('user-menu').classList.add('hidden');">
+                                    <i class="fas fa-folder-open mr-2"></i> My Content
+                                </button>
+                                <button class="w-full text-left px-4 py-2 text-sm hover:bg-gray-800" onclick="showPage('credits'); document.getElementById('user-menu').classList.add('hidden');">
+                                    <i class="fas fa-coins mr-2"></i> Credits
+                                </button>
+                                <div class="my-1 border-t border-gray-800"></div>
+                                <button class="w-full text-left px-4 py-2 text-sm hover:bg-gray-800" onclick="logout(); document.getElementById('user-menu').classList.add('hidden');">
+                                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="-mr-2 flex md:hidden">
+                    <button type="button" id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white" aria-controls="mobile-menu" aria-expanded="false">
+                        <span class="sr-only">Open main menu</span>
+                        <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile menu -->
+        <div class="md:hidden hidden" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="index.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">Home</a>
+                <a href="image.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">Image Generator</a>
+                <a href="pricing.html" class="block px-3 py-2 rounded-md text-base font-medium text-white bg-purple-600/20 rounded-md">Pricing</a>
+                <a href="video.html" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white transition duration-300">Video Generator</a>
+            </div>
+            <div class="pt-4 pb-3 border-t border-gray-700 px-3">
+                <!-- Signed-out (mobile) -->
+                <div id="auth-signed-out-mobile" class="mt-3 space-y-1">
+                    <button class="block w-full px-4 py-2 rounded-md text-base font-medium text-white bg-transparent border border-gray-700 hover:bg-gray-800 transition duration-300 mb-2" onclick="showLoginModal()">
+                        Login
+                    </button>
+                    <button class="btn-primary block w-full px-4 py-2 rounded-md text-base font-medium text-white" onclick="showSignupModal()">
+                        Sign Up
+                    </button>
+                </div>
+                <!-- Signed-in (mobile) -->
+                <div id="auth-signed-in-mobile" class="mt-3 space-y-3 hidden">
+                    <div class="flex items-center gap-3 px-2">
+                        <span id="user-avatar-mobile" class="h-9 w-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-sm font-semibold text-white"></span>
+                        <div class="flex-1">
+                            <p id="user-display-name-mobile" class="font-medium"></p>
+                            <p class="text-xs text-gray-400">Signed in</p>
+                        </div>
+                        <!-- Mobile Credits Display -->
+                        <div class="flex items-center gap-1.5 px-2 py-1 bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border border-yellow-500/30 rounded-md">
+                            <i class="fas fa-coins text-yellow-400 text-xs"></i>
+                            <span id="nav-credits-mobile" class="text-xs font-semibold text-yellow-300">0</span>
+                        </div>
+                    </div>
+                    <button class="block w-full px-4 py-2 rounded-md text-base font-medium bg-gray-800 hover:bg-gray-700 transition duration-300" onclick="logout()">
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-16 pb-12">
+        <!-- Hero Section -->
+        <section class="relative overflow-hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
+                <div class="text-center mb-16">
+                    <h1 class="text-4xl md:text-6xl font-bold mb-6 slide-up">
+                        Choose Your <span class="gradient-text">Plan</span>
+                    </h1>
+                    <p class="text-xl md:text-2xl text-gray-400 mb-10 slide-up">
+                        Unlock unlimited creativity with our flexible credit packages. 
+                        Generate stunning AI images at the best value.
+                    </p>
+                </div>
+
+                <!-- Pricing Cards -->
+                <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                    <!-- Starter Plan -->
+                    <div class="pricing-card bg-gray-900/80 backdrop-blur-lg rounded-2xl p-8 border border-gray-800 hover:border-purple-500 transition-all duration-300">
+                <div class="text-center mb-8">
+                    <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-rocket text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-2">Starter</h3>
+                    <p class="text-gray-400">Perfect for beginners</p>
+                </div>
+                
+                <div class="text-center mb-8">
+                    <div class="text-4xl font-bold text-white mb-2">$9</div>
+                    <div class="text-gray-400 mb-4">200 Credits</div>
+                                         <div class="text-sm text-gray-500">~20 AI Images or ~8 Videos</div>
+                </div>
+                
+                <ul class="space-y-3 mb-8">
+                                         <li class="flex items-center text-gray-300">
+                         <i class="fas fa-check text-green-400 mr-3"></i>
+                         200 High-quality images or 8 videos
+                     </li>
+                    <li class="flex items-center text-gray-300">
+                        <i class="fas fa-check text-green-400 mr-3"></i>
+                        All AI models included
+                    </li>
+                    <li class="flex items-center text-gray-300">
+                        <i class="fas fa-check text-green-400 mr-3"></i>
+                        Priority support
+                    </li>
+                    <li class="flex items-center text-gray-300">
+                        <i class="fas fa-check text-green-400 mr-3"></i>
+                        No watermarks
+                    </li>
+                </ul>
+                
+                <button onclick="redirectToStripe('starter')" class="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-300">
+                    Get Started
+                </button>
+            </div>
+
+                    <!-- Popular Plan -->
+                    <div class="pricing-card bg-gradient-to-br from-purple-600/20 to-cyan-600/20 backdrop-blur-lg rounded-2xl p-8 border-2 border-purple-500 relative transition-all duration-300">
+                <div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                    <span class="bg-gradient-to-r from-purple-500 to-cyan-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
+                        Most Popular
+                    </span>
+                </div>
+                
+                <div class="text-center mb-8">
+                    <div class="w-16 h-16 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-crown text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-2">Pro</h3>
+                    <p class="text-gray-400">Best value for creators</p>
+                </div>
+                
+                <div class="text-center mb-8">
+                    <div class="text-4xl font-bold text-white mb-2">$40</div>
+                    <div class="text-gray-400 mb-4">1000 Credits</div>
+                                         <div class="text-sm text-gray-500">~100 AI Images or ~40 Videos</div>
+                    <div class="text-green-400 text-sm font-semibold mt-2">Save 33%</div>
+                </div>
+                
+                <ul class="space-y-3 mb-8">
+                                         <li class="flex items-center text-gray-300">
+                         <i class="fas fa-check text-green-400 mr-3"></i>
+                         1000 High-quality images or 40 videos
+                     </li>
+                    <li class="flex items-center text-gray-300">
+                        <i class="fas fa-check text-green-400 mr-3"></i>
+                        All AI models included
+                    </li>
+                    <li class="flex items-center text-gray-300">
+                        <i class="fas fa-check text-green-400 mr-3"></i>
+                        Priority support
+                    </li>
+                    <li class="flex items-center text-gray-300">
+                        <i class="fas fa-check text-green-400 mr-3"></i>
+                        No watermarks
+                    </li>
+                    <li class="flex items-center text-gray-300">
+                        <i class="fas fa-check text-green-400 mr-3"></i>
+                        Commercial license
+                    </li>
+                    <li class="flex items-center text-gray-300">
+                        <i class="fas fa-check text-green-400 mr-3"></i>
+                        Bulk download
+                    </li>
+                </ul>
+                
+                <button onclick="redirectToStripe('pro')" class="w-full bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-300">
+                    Get Pro
+                </button>
+            </div>
+
+                    <!-- Enterprise Plan -->
+                    <div class="pricing-card bg-gray-900/80 backdrop-blur-lg rounded-2xl p-8 border border-gray-800 hover:border-cyan-500 transition-all duration-300">
+                <div class="text-center mb-8">
+                    <div class="w-16 h-16 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-infinity text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-2">Enterprise</h3>
+                    <p class="text-gray-400">For teams & businesses</p>
+                </div>
+                
+                <div class="text-center mb-8">
+                    <div class="text-4xl font-bold text-white mb-2">$99</div>
+                    <div class="text-gray-400 mb-4">3000 Credits</div>
+                                         <div class="text-sm text-gray-500">~300 AI Images or ~120 Videos</div>
+                    <div class="text-green-400 text-sm font-semibold mt-2">Save 50%</div>
+                </div>
+                
+                <ul class="space-y-3 mb-8">
+                                         <li class="flex items-center text-gray-300">
+                         <i class="fas fa-check text-green-400 mr-3"></i>
+                         3000 High-quality images or 120 videos
+                     </li>
+                    <li class="flex items-center text-gray-300">
+                        <i class="fas fa-check text-green-400 mr-3"></i>
+                        All AI models included
+                    </li>
+                    <li class="flex items-center text-gray-300">
+                        <i class="fas fa-check text-green-400 mr-3"></i>
+                        Priority support
+                    </li>
+                    <li class="flex items-center text-gray-300">
+                        <i class="fas fa-check text-green-400 mr-3"></i>
+                        No watermarks
+                    </li>
+                    <li class="flex items-center text-gray-300">
+                        <i class="fas fa-check text-green-400 mr-3"></i>
+                        Commercial license
+                    </li>
+                    <li class="flex items-center text-gray-300">
+                        <i class="fas fa-check text-green-400 mr-3"></i>
+                        Team collaboration
+                    </li>
+                    <li class="flex items-center text-gray-300">
+                        <i class="fas fa-check text-green-400 mr-3"></i>
+                        API access
+                    </li>
+                </ul>
+                
+                <button onclick="redirectToStripe('enterprise')" class="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-300">
+                    Get Enterprise
+                </button>
+            </div>
+        </div>
+
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="py-20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-6 slide-up">
+                        Why Choose Our <span class="gradient-text">Credits?</span>
+                    </h2>
+                </div>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="text-center theme-card bg-gray-900/80 backdrop-blur-lg rounded-2xl p-8 border border-gray-800 transition-all duration-300">
+                        <div class="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-bolt text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-2">Instant Delivery</h3>
+                        <p class="text-gray-400">Credits are added to your account immediately after purchase</p>
+                    </div>
+                    <div class="text-center theme-card bg-gray-900/80 backdrop-blur-lg rounded-2xl p-8 border border-gray-800 transition-all duration-300">
+                        <div class="w-16 h-16 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-shield-alt text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-2">Secure Payment</h3>
+                        <p class="text-gray-400">Your payment information is protected with bank-level security</p>
+                    </div>
+                    <div class="text-center theme-card bg-gray-900/80 backdrop-blur-lg rounded-2xl p-8 border border-gray-800 transition-all duration-300">
+                        <div class="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-headset text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-2">24/7 Support</h3>
+                        <p class="text-gray-400">Get help whenever you need it with our dedicated support team</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="py-20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-6 slide-up">
+                        Frequently Asked <span class="gradient-text">Questions</span>
+                    </h2>
+                </div>
+                <div class="max-w-4xl mx-auto space-y-6">
+                    <div class="bg-gray-900/80 backdrop-blur-lg rounded-2xl p-6 border border-gray-800">
+                        <h3 class="text-lg font-semibold text-white mb-2">How many images and videos can I generate with these credits?</h3>
+                        <p class="text-gray-400">Image generation costs 1 credit each, and video generation costs 25 credits each. So 200 credits = 200 images or 8 videos, 1000 credits = 1000 images or 40 videos, and 3000 credits = 3000 images or 120 videos.</p>
+                    </div>
+                    <div class="bg-gray-900/80 backdrop-blur-lg rounded-2xl p-6 border border-gray-800">
+                        <h3 class="text-lg font-semibold text-white mb-2">Do credits expire?</h3>
+                        <p class="text-gray-400">No, your credits never expire. Use them whenever you want to generate images.</p>
+                    </div>
+                    <div class="bg-gray-900/80 backdrop-blur-lg rounded-2xl p-6 border border-gray-800">
+                        <h3 class="text-lg font-semibold text-white mb-2">Can I get a refund?</h3>
+                        <p class="text-gray-400">We offer a 30-day money-back guarantee if you're not satisfied with our service.</p>
+                    </div>
+                    <div class="bg-gray-900/80 backdrop-blur-lg rounded-2xl p-6 border border-gray-800">
+                        <h3 class="text-lg font-semibold text-white mb-2">What payment methods do you accept?</h3>
+                        <p class="text-gray-400">We accept all major credit cards, PayPal, and Apple Pay for secure payments.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-gray-800 rounded-2xl p-8 max-w-md w-full border border-gray-700">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-white">Login</h2>
+                    <button onclick="hideLoginModal()" class="text-gray-400 hover:text-white">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <form onsubmit="event.preventDefault(); login();">
+                    <div class="mb-4">
+                        <label class="block text-gray-300 mb-2">Email</label>
+                        <input type="email" id="login-email" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500" required>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-gray-300 mb-2">Password</label>
+                        <input type="password" id="login-password" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500" required>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-300">
+                        Login
+                    </button>
+                </form>
+                
+                <div class="mt-6 text-center">
+                    <p class="text-gray-400">Don't have an account? 
+                        <button onclick="showSignupModal()" class="text-purple-400 hover:text-purple-300">Sign up</button>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div id="signup-modal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-gray-800 rounded-2xl p-8 max-w-md w-full border border-gray-700">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-white">Sign Up</h2>
+                    <button onclick="hideSignupModal()" class="text-gray-400 hover:text-white">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <form onsubmit="event.preventDefault(); signup();">
+                    <div class="mb-4">
+                        <label class="block text-gray-300 mb-2">Full Name</label>
+                        <input type="text" id="signup-name" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-300 mb-2">Email</label>
+                        <input type="email" id="signup-email" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-300 mb-2">Password</label>
+                        <input type="password" id="signup-password" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-300 mb-2">Confirm Password</label>
+                        <input type="password" id="signup-confirm-password" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500" required>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="flex items-center">
+                            <input type="checkbox" id="terms" class="mr-2" required>
+                            <span class="text-gray-300 text-sm">I agree to the <a href="#" class="text-purple-400">Terms of Service</a> and <a href="#" class="text-purple-400">Privacy Policy</a></span>
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-300">
+                        Create Account
+                    </button>
+                </form>
+                
+                <div class="mt-6 text-center">
+                    <p class="text-gray-400">Already have an account? 
+                        <button onclick="showLoginModal()" class="text-purple-400 hover:text-purple-300">Login</button>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-4 right-4 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 z-50">
+        <div class="flex items-center">
+            <i id="toast-icon" class="mr-2"></i>
+            <span id="toast-message"></span>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+        import { getDatabase, ref, set, update, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+
+        const firebaseConfig = {
+            apiKey: 'AIzaSyD9_vulE5tWDNKQqr6OPCmkFUx8l-Gs1Qg',
+            authDomain: 'perseptra.firebaseapp.com',
+            databaseURL: 'https://perseptra-default-rtdb.firebaseio.com',
+            projectId: 'perseptra',
+            storageBucket: 'perseptra.firebasestorage.app',
+            messagingSenderId: '902121213105',
+            appId: '1:902121213105:web:df5a0b2da4f2b8845de690',
+            measurementId: 'G-WP8V4VRDQP'
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        
+        // Persist auth state locally across reloads
+        setPersistence(auth, browserLocalPersistence).catch(() => {});
+
+        // Global auth state
+        let currentUser = null;
+
+        // Check for cached auth state to prevent flicker
+        const cachedUser = localStorage.getItem('cachedUser');
+        if (cachedUser) {
+            try {
+                const userData = JSON.parse(cachedUser);
+                // Temporarily show logged-in state while Firebase initializes
+                const signedOut = document.getElementById('auth-signed-out');
+                const signedIn = document.getElementById('auth-signed-in');
+                const signedOutMobile = document.getElementById('auth-signed-out-mobile');
+                const signedInMobile = document.getElementById('auth-signed-in-mobile');
+                
+                if (signedOut) signedOut.classList.add('hidden');
+                if (signedIn) signedIn.classList.remove('hidden');
+                if (signedOutMobile) signedOutMobile.classList.add('hidden');
+                if (signedInMobile) signedInMobile.classList.remove('hidden');
+                
+                // Set user info from cache
+                const name = userData.displayName || (userData.email ? userData.email.split('@')[0] : 'User');
+                const initials = (userData.displayName || name)
+                    .split(' ')
+                    .map(w => w[0])
+                    .join('')
+                    .slice(0, 2)
+                    .toUpperCase();
+                
+                const avatar = document.getElementById('user-avatar');
+                const avatarM = document.getElementById('user-avatar-mobile');
+                const nameEl = document.getElementById('user-display-name');
+                const nameElM = document.getElementById('user-display-name-mobile');
+                
+                if (avatar) avatar.textContent = initials;
+                if (avatarM) avatarM.textContent = initials;
+                if (nameEl) nameEl.textContent = name;
+                if (nameElM) nameElM.textContent = name;
+            } catch (e) {
+                console.warn('Failed to parse cached user data:', e);
+            }
+        }
+
+        // Auth state observer
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            updateAuthUI(user);
+        });
+
+        // Make currentUser globally accessible
+        window.getCurrentUser = () => currentUser;
+
+        // Check for success/cancel messages from Stripe
+        window.addEventListener('load', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const success = urlParams.get('success');
+            const canceled = urlParams.get('canceled');
+            
+            if (success === 'true') {
+                showToast('🎉 Payment successful! Your credits have been added to your account.', 'success');
+                // Clear the URL parameters
+                window.history.replaceState({}, document.title, window.location.pathname);
+            } else if (canceled === 'true') {
+                showToast('Payment was canceled. No charges were made.', 'info');
+                // Clear the URL parameters
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        });
+
+        // Update UI based on auth state
+        function updateAuthUI(user) {
+            const signedOut = document.getElementById('auth-signed-out');
+            const signedIn = document.getElementById('auth-signed-in');
+            const signedOutMobile = document.getElementById('auth-signed-out-mobile');
+            const signedInMobile = document.getElementById('auth-signed-in-mobile');
+
+            if (user) {
+                // Cache user data for faster page loads
+                localStorage.setItem('cachedUser', JSON.stringify({
+                    uid: user.uid,
+                    email: user.email,
+                    displayName: user.displayName
+                }));
+                
+                // Desktop
+                signedOut?.classList.add('hidden');
+                signedIn?.classList.remove('hidden');
+                // Mobile
+                signedOutMobile?.classList.add('hidden');
+                signedInMobile?.classList.remove('hidden');
+
+                const name = user.displayName || (user.email ? user.email.split('@')[0] : 'User');
+                const initials = (user.displayName || name)
+                    .split(' ')
+                    .map(w => w[0])
+                    .join('')
+                    .slice(0, 2)
+                    .toUpperCase();
+                
+                const avatar = document.getElementById('user-avatar');
+                const avatarM = document.getElementById('user-avatar-mobile');
+                const nameEl = document.getElementById('user-display-name');
+                const nameElM = document.getElementById('user-display-name-mobile');
+                
+                if (avatar) avatar.textContent = initials;
+                if (avatarM) avatarM.textContent = initials;
+                if (nameEl) nameEl.textContent = name;
+                if (nameElM) nameElM.textContent = name;
+                
+                // Load user credits
+                loadUserCredits(user.uid).then((balance) => {
+                    const navCredits = document.getElementById('nav-credits');
+                    const navCreditsMobile = document.getElementById('nav-credits-mobile');
+                    if (navCredits) navCredits.textContent = String(balance);
+                    if (navCreditsMobile) navCreditsMobile.textContent = String(balance);
+                });
+            } else {
+                signedOut?.classList.remove('hidden');
+                signedIn?.classList.add('hidden');
+                signedOutMobile?.classList.remove('hidden');
+                signedInMobile?.classList.add('hidden');
+            }
+        }
+
+        // Load user credits function
+        async function loadUserCredits(userId) {
+            try {
+                const response = await fetch(`http://127.0.0.1:5000/get-credits/${userId}`);
+                const data = await response.json();
+                
+                if (data.balance !== undefined) {
+                    const navCredits = document.getElementById('nav-credits');
+                    const navCreditsMobile = document.getElementById('nav-credits-mobile');
+                    if (navCredits) navCredits.textContent = String(data.balance);
+                    if (navCreditsMobile) navCreditsMobile.textContent = String(data.balance);
+                    
+                    console.log(`Loaded credits from Firebase: ${data.balance}`);
+                    return data.balance;
+                }
+            } catch (error) {
+                console.error('Error loading credits from Firebase:', error);
+                const navCredits = document.getElementById('nav-credits');
+                const navCreditsMobile = document.getElementById('nav-credits-mobile');
+                if (navCredits) navCredits.textContent = '0';
+                if (navCreditsMobile) navCreditsMobile.textContent = '0';
+                return 0;
+            }
+        }
+
+        // Modal functions
+        window.showLoginModal = function() {
+            document.getElementById('login-modal').classList.remove('hidden');
+        };
+
+        window.hideLoginModal = function() {
+            document.getElementById('login-modal').classList.add('hidden');
+        };
+
+        window.showSignupModal = function() {
+            document.getElementById('signup-modal').classList.remove('hidden');
+            hideLoginModal();
+        };
+
+        window.hideSignupModal = function() {
+            document.getElementById('signup-modal').classList.add('hidden');
+        };
+
+        // Mobile menu toggle
+        document.addEventListener('click', (e) => {
+            if (e.target.id === 'mobile-menu-button' || e.target.closest('#mobile-menu-button')) {
+                const menu = document.getElementById('mobile-menu');
+                menu.classList.toggle('hidden');
+            }
+            
+            // User menu toggle
+            if (e.target.id === 'user-menu-button') {
+                const userMenu = document.getElementById('user-menu');
+                userMenu.classList.toggle('hidden');
+            }
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            
+            if (mobileMenu && !mobileMenu.contains(e.target) && !mobileMenuButton.contains(e.target)) {
+                mobileMenu.classList.add('hidden');
+            }
+        });
+
+        // Stripe redirect function
+        window.redirectToStripe = function(plan) {
+            const user = currentUser || auth.currentUser;
+            if (!user) {
+                showToast('Please log in to purchase credits', 'error');
+                return;
+            }
+            
+            // Stripe checkout URLs for each plan
+            const stripeUrls = {
+                'starter': 'https://buy.stripe.com/test_6oU4gs1FogI15eE2UG9oc00', // Starter plan - 200 credits for $9
+                'pro': 'https://buy.stripe.com/test_5kQbIUfwe3Vf6iI3YK9oc01', // Pro plan - 1000 credits for $40
+                'enterprise': 'https://buy.stripe.com/test_aFa8wI4RAdvP5eEeDo9oc02' // Enterprise plan - 3000 credits for $99
+            };
+            
+            const stripeUrl = stripeUrls[plan];
+            
+            if (!stripeUrl) {
+                showToast('Payment link not found. Please contact support.', 'error');
+                return;
+            }
+            
+            // Redirect to Stripe checkout
+            window.location.href = stripeUrl;
+        };
+
+        // Legacy purchase credits function (kept for compatibility)
+        window.purchaseCredits = async function(plan, credits, price) {
+            const user = auth.currentUser;
+            if (!user) {
+                showToast('Please log in to purchase credits', 'error');
+                return;
+            }
+            
+            // For now, simulate a purchase and add credits
+            try {
+                const response = await fetch('http://127.0.0.1:5000/add-credits', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        userId: user.uid,
+                        amount: credits
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showToast(`Successfully purchased ${credits} credits for $${price}!`, 'success');
+                    
+                    // Update credit displays
+                    const navCredits = document.getElementById('nav-credits');
+                    const navCreditsMobile = document.getElementById('nav-credits-mobile');
+                    if (navCredits) navCredits.textContent = String(data.newBalance);
+                    if (navCreditsMobile) navCreditsMobile.textContent = String(data.newBalance);
+                } else {
+                    showToast('Failed to purchase credits', 'error');
+                }
+            } catch (error) {
+                console.error('Error purchasing credits:', error);
+                showToast('Error purchasing credits', 'error');
+            }
+        };
+
+        // Auth functions
+        window.login = async function() {
+            const email = document.getElementById('login-email')?.value?.trim();
+            const password = document.getElementById('login-password')?.value || '';
+            if (!email || !password) return alert('Please enter your email and password.');
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                showToast('Logged in successfully!', 'success');
+                hideLoginModal();
+            } catch (err) {
+                showToast(err.message || 'Login failed', 'error');
+            }
+        };
+
+        window.signup = async function() {
+            const name = document.getElementById('signup-name')?.value?.trim();
+            const email = document.getElementById('signup-email')?.value?.trim();
+            const password = document.getElementById('signup-password')?.value || '';
+            const confirm = document.getElementById('signup-confirm-password')?.value || '';
+            const agreed = document.getElementById('terms')?.checked;
+
+            if (!name) return alert('Please enter your full name.');
+            if (!email) return alert('Please enter your email.');
+            if (password.length < 8) return alert('Password must be at least 8 characters.');
+            if (password !== confirm) return alert('Passwords do not match.');
+            if (!agreed) return alert('Please accept the Terms and Privacy Policy.');
+
+            try {
+                const cred = await createUserWithEmailAndPassword(auth, email, password);
+                await updateProfile(cred.user, { displayName: name });
+                
+                // Add initial credits to new user
+                try {
+                    const response = await fetch('http://127.0.0.1:5000/add-credits', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            userId: cred.user.uid,
+                            amount: 50  // Give 50 free credits to new users
+                        })
+                    });
+                    if (response.ok) {
+                        showToast('Account created successfully! You received 50 free credits!', 'success');
+                    } else {
+                        showToast('Account created successfully!', 'success');
+                    }
+                } catch (error) {
+                    console.error('Error adding initial credits:', error);
+                    showToast('Account created successfully!', 'success');
+                }
+                
+                hideSignupModal();
+            } catch (err) {
+                const msg = (err && err.code === 'auth/configuration-not-found')
+                    ? 'Email/Password auth is not enabled. In Firebase Console → Authentication → Sign-in method, enable Email/Password.'
+                    : (err && err.code === 'auth/operation-not-allowed')
+                        ? 'Email/Password provider is disabled in Firebase Console.'
+                        : (err && err.message) || 'Sign up failed';
+                showToast(msg, 'error');
+            }
+        };
+
+        window.logout = async function() {
+            try {
+                await signOut(auth);
+                // Clear cached user data
+                localStorage.removeItem('cachedUser');
+                showToast('Logged out successfully!', 'success');
+            } catch (err) {
+                showToast(err.message || 'Logout failed', 'error');
+            }
+        };
+
+        // Toast notification function
+        window.showToast = function(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+            
+            toastMessage.textContent = message;
+            
+            // Set icon and color based on type
+            if (type === 'success') {
+                toastIcon.className = 'fas fa-check-circle text-green-400';
+                toast.className = 'fixed top-4 right-4 bg-green-800 text-white px-6 py-3 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 z-50';
+            } else if (type === 'error') {
+                toastIcon.className = 'fas fa-exclamation-circle text-red-400';
+                toast.className = 'fixed top-4 right-4 bg-red-800 text-white px-6 py-3 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 z-50';
+            } else {
+                toastIcon.className = 'fas fa-info-circle text-blue-400';
+                toast.className = 'fixed top-4 right-4 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 z-50';
+            }
+            
+            // Show toast
+            setTimeout(() => {
+                toast.classList.remove('translate-x-full');
+            }, 100);
+            
+            // Hide toast after 3 seconds
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+            }, 3000);
+        };
+
+        // Navigation function
+        window.showPage = function(page) {
+            if (page === 'home') {
+                window.location.href = 'index.html';
+            } else if (page === 'image') {
+                window.location.href = 'image.html';
+            } else if (page === 'pricing') {
+                window.location.href = 'pricing.html';
+            }
+        };
+    </script>
+</body>
+</html>

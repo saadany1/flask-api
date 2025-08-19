@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perseptra - AI Image Generation Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="16x16" href="Media/image.png?v=2">
+    <link rel="icon" type="image/png" sizes="32x32" href="Media/image.png?v=2">
+    <link rel="shortcut icon" href="Media/image.png?v=2">
+    <link rel="apple-touch-icon" sizes="180x180" href="Media/image.png?v=2">
+    <meta name="theme-color" content="#0f0f13">
+  <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f0f13;
+            color: #e2e2e2;
+            min-height: 100vh;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(90deg, #a78bfa, #c4b5fd);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.3);
+        }
+        
+        .nav-link:hover {
+            color: #8b5cf6;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .slide-up {
+            animation: slideUp 0.5s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .input-field {
+            background-color: #1a1a23;
+            transition: all 0.3s ease;
+        }
+        
+        .input-field:focus {
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+        }
+        
+        .generator-container {
+            background: linear-gradient(145deg, #1a1a23, #0f0f13);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .preview-placeholder {
+            background: linear-gradient(145deg, #2a2a35, #1a1a23);
+        }
+        
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.5), transparent);
+        }
+
+        .gallery-card {
+            transition: all 0.3s ease;
+        }
+        
+        .gallery-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Mobile-specific improvements */
+        @media (max-width: 768px) {
+            .generator-container {
+                padding: 1rem !important;
+            }
+            
+            .theme-btn {
+                padding: 0.75rem 0.5rem !important;
+                font-size: 0.75rem !important;
+            }
+            
+            .gallery-card:hover {
+                transform: none;
+            }
+            
+            /* Improve touch targets */
+            button, .btn-primary, .btn-secondary {
+                min-height: 44px;
+            }
+            
+            /* Better spacing for mobile */
+            .space-y-8 > * + * {
+                margin-top: 1.5rem;
+            }
+            
+            .space-y-6 > * + * {
+                margin-top: 1rem;
+            }
+        }
+
+        /* Theme button styles */
+        .theme-btn {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .theme-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .theme-btn:hover::before {
+            left: 100%;
+        }
+
+        .theme-btn.active {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(99, 102, 241, 0.3)) !important;
+            border-color: rgba(139, 92, 246, 0.5) !important;
+            color: white !important;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+        }
+
+        .theme-btn.active i {
+            color: white !important;
+        }
+
+        /* Mobile/light tweaks */
+        @media (max-width: 640px) {
+            body { background-color: #14141b; }
+            .gradient-text {
+                background: none !important;
+                -webkit-background-clip: initial;
+                background-clip: initial;
+                -webkit-text-fill-color: inherit;
+                color: #f3f4f6;
+            }
+        }
+  </style>
+</head>
+<body class="min-h-screen">
+    <!-- Global background gradient overlay -->
+    <div class="fixed inset-0 -z-10 pointer-events-none bg-gradient-to-br from-purple-900/20 via-transparent to-blue-900/20"></div>
+    
+    <!-- Navigation -->
+    <nav class="bg-gray-900/80 backdrop-blur-md fixed w-full z-50 border-b border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <span class="text-2xl font-bold gradient-text">Perseptra</span>
+                    </div>
+                    <div class="hidden md:block">
+                        <div class="ml-10 flex items-baseline space-x-4">
+                            <a href="index.html" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white transition duration-300" onclick="allowNavigation()">Home</a>
+                            <a href="image.html" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-white bg-purple-600/20 rounded-md">Image Generator</a>
+                            <a href="video.html" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white transition duration-300">Video Generator</a>
+                            <a href="pricing.html" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white transition duration-300">Pricing</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="hidden md:block">
+                    <!-- Signed-out state -->
+                    <div id="auth-signed-out" class="ml-4 flex items-center md:ml-6">
+                        <button class="px-4 py-2 rounded-md text-sm font-medium text-white bg-transparent border border-gray-700 hover:bg-gray-800 transition duration-300 mr-3">
+                            Login
+                        </button>
+                        <button class="btn-primary px-4 py-2 rounded-md text-sm font-medium text-white">
+                            Sign Up
+                        </button>
+                    </div>
+                    <!-- Signed-in state -->
+                    <div id="auth-signed-in" class="ml-4 items-center md:ml-6 hidden">
+                        <div class="relative">
+                            <button id="user-menu-button" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-800 transition">
+                                <span id="user-avatar" class="h-8 w-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-xs font-semibold text-white"></span>
+                                <span id="user-display-name" class="text-sm font-medium"></span>
+                                <!-- Credits Display -->
+                                <div class="flex items-center gap-1.5 px-2 py-1 bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border border-yellow-500/30 rounded-md">
+                                    <i class="fas fa-coins text-yellow-400 text-xs"></i>
+                                    <span id="nav-credits" class="text-xs font-semibold text-yellow-300">0</span>
+                                </div>
+                                <i class="fas fa-chevron-down text-xs text-gray-400 ml-1"></i>
+                            </button>
+                            <div id="user-menu" class="absolute right-0 mt-2 w-52 bg-gray-900 border border-gray-800 rounded-md shadow-xl py-1 hidden">
+                                <button class="w-full text-left px-4 py-2 text-sm hover:bg-gray-800" onclick="logout(); document.getElementById('user-menu').classList.add('hidden');">
+                                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="-mr-2 flex md:hidden">
+                    <button type="button" id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white" aria-controls="mobile-menu" aria-expanded="false">
+                        <span class="sr-only">Open main menu</span>
+                        <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile menu -->
+        <div class="md:hidden hidden" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="index.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">Home</a>
+                <a href="image.html" class="block px-3 py-2 rounded-md text-base font-medium text-white bg-purple-600/20 rounded-md">Image Generator</a>
+                <a href="video.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">Video Generator</a>
+                <a href="pricing.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">Pricing</a>
+            </div>
+            <div class="pt-4 pb-3 border-t border-gray-700 px-3">
+                <!-- Signed-out (mobile) -->
+                <div id="auth-signed-out-mobile" class="mt-3 space-y-1">
+                    <button class="block w-full px-4 py-2 rounded-md text-base font-medium text-white bg-transparent border border-gray-700 hover:bg-gray-800 transition duration-300 mb-2">
+                        Login
+                    </button>
+                    <button class="btn-primary block w-full px-4 py-2 rounded-md text-base font-medium text-white">
+                        Sign Up
+                    </button>
+                </div>
+                <!-- Signed-in (mobile) -->
+                <div id="auth-signed-in-mobile" class="mt-3 space-y-3 hidden">
+                    <div class="flex items-center gap-3 px-2">
+                        <span id="user-avatar-mobile" class="h-9 w-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-sm font-semibold text-white"></span>
+                        <div class="flex-1">
+                            <p id="user-display-name-mobile" class="font-medium"></p>
+                            <p class="text-xs text-gray-400">Signed in</p>
+                        </div>
+                        <!-- Mobile Credits Display -->
+                        <div class="flex items-center gap-1.5 px-2 py-1 bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border border-yellow-500/30 rounded-md">
+                            <i class="fas fa-coins text-yellow-400 text-xs"></i>
+                            <span id="nav-credits-mobile" class="text-xs font-semibold text-yellow-300">0</span>
+                        </div>
+                    </div>
+                    <button class="block w-full px-4 py-2 rounded-md text-base font-medium bg-gray-800 hover:bg-gray-700 transition duration-300" onclick="logout()">
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-16 pb-12">
+        <!-- Main Content Section -->
+        <section class="relative overflow-hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+
+                <!-- Image Generator Interface -->
+                <div class="max-w-5xl mx-auto">
+                    <div class="relative">
+                        <!-- Background glow effect -->
+                        <div class="absolute inset-0 bg-gradient-to-r from-purple-500/20 via-blue-500/20 to-purple-500/20 rounded-3xl blur-3xl"></div>
+                        
+                        <!-- Main container -->
+                        <div class="generator-container relative rounded-3xl border border-gray-800/50 p-8 md:p-10 shadow-2xl bg-gradient-to-br from-gray-900/90 via-gray-900/80 to-gray-800/90 backdrop-blur-xl">
+                            <!-- Decorative elements -->
+                            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-purple-500 to-transparent rounded-t-3xl"></div>
+                            <div class="absolute top-4 right-4 w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
+                            <div class="absolute bottom-4 left-4 w-1 h-1 bg-blue-400 rounded-full animate-pulse" style="animation-delay: 1s;"></div>
+                            
+
+                        
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <!-- Left Column: Input Controls -->
+                            <div class="space-y-8">
+                                <!-- Prompt Input -->
+                                <div class="relative group">
+                                    <div class="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
+                                    <div class="relative">
+                                        <label class="block text-sm font-semibold text-gray-300 mb-3 ml-1">
+                                            <i class="fas fa-lightbulb mr-2 text-yellow-400"></i>Describe Your Vision
+                                        </label>
+                                        <textarea 
+                                            id="prompt" 
+                                            class="w-full input-field rounded-2xl p-6 h-36 text-white border border-gray-700/50 focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300 resize-none bg-gray-900/50 backdrop-blur-sm" 
+                                            placeholder="✨ Describe the image you want to create...&#10;&#10;Examples:&#10;• A majestic dragon flying over a medieval castle at sunset&#10;• Cyberpunk cityscape with neon lights and flying cars&#10;• Serene forest with glowing mushrooms and fairy lights"
+                                            autocomplete="off"></textarea>
+                                        <div class="absolute bottom-4 right-4 flex items-center gap-2">
+                                            <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                                            <span class="text-xs text-gray-400">
+                                                <span id="char-count">0</span>/500
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Controls Row -->
+                                <div class="space-y-6">
+                                    <!-- Theme Selection -->
+                                    <div class="bg-gray-800/30 rounded-xl p-4 border border-gray-700/50">
+                                        <h3 class="text-sm font-semibold text-gray-300 mb-4 flex items-center">
+                                            <i class="fas fa-palette mr-2 text-purple-400"></i>Art Style Theme
+                                        </h3>
+                                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                            <button class="theme-btn theme-btn-realistic px-3 py-2 rounded-lg text-xs font-medium text-gray-300 bg-gray-700/50 hover:bg-gray-600/50 border border-gray-600/50 hover:border-gray-500/50 transition-all duration-300 group" data-theme="realistic">
+                                                <i class="fas fa-camera mr-1.5 text-blue-400 group-hover:text-blue-300"></i>Realistic
+                                            </button>
+                                            <button class="theme-btn theme-btn-anime px-3 py-2 rounded-lg text-xs font-medium text-gray-300 bg-gray-700/50 hover:bg-gray-600/50 border border-gray-600/50 hover:border-gray-500/50 transition-all duration-300 group" data-theme="anime">
+                                                <i class="fas fa-star mr-1.5 text-pink-400 group-hover:text-pink-300"></i>Anime
+                                            </button>
+                                            <button class="theme-btn theme-btn-cartoon px-3 py-2 rounded-lg text-xs font-medium text-gray-300 bg-gray-700/50 hover:bg-gray-600/50 border border-gray-600/50 hover:border-gray-500/50 transition-all duration-300 group" data-theme="cartoon">
+                                                <i class="fas fa-smile mr-1.5 text-yellow-400 group-hover:text-yellow-300"></i>Cartoon
+                                            </button>
+                                            <button class="theme-btn theme-btn-cyberpunk px-3 py-2 rounded-lg text-xs font-medium text-gray-300 bg-gray-700/50 hover:bg-gray-600/50 border border-gray-600/50 hover:border-gray-500/50 transition-all duration-300 group" data-theme="cyberpunk">
+                                                <i class="fas fa-microchip mr-1.5 text-cyan-400 group-hover:text-cyan-300"></i>Cyberpunk
+                                            </button>
+                                            <button class="theme-btn theme-btn-fantasy px-3 py-2 rounded-lg text-xs font-medium text-gray-300 bg-gray-700/50 hover:bg-gray-600/50 border border-gray-600/50 hover:border-gray-500/50 transition-all duration-300 group" data-theme="fantasy">
+                                                <i class="fas fa-dragon mr-1.5 text-purple-400 group-hover:text-purple-300"></i>Fantasy
+                                            </button>
+                                            <button class="theme-btn theme-btn-watercolor px-3 py-2 rounded-lg text-xs font-medium text-gray-300 bg-gray-700/50 hover:bg-gray-600/50 border border-gray-600/50 hover:border-gray-500/50 transition-all duration-300 group" data-theme="watercolor">
+                                                <i class="fas fa-paint-brush mr-1.5 text-green-400 group-hover:text-green-300"></i>Watercolor
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Settings Panel -->
+                                    <div class="bg-gray-800/30 rounded-xl p-4 border border-gray-700/50">
+                                        <h3 class="text-sm font-semibold text-gray-300 mb-3 flex items-center">
+                                            <i class="fas fa-cog mr-2 text-blue-400"></i>Settings
+                                        </h3>
+                                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                            <label class="flex items-center gap-2 text-sm text-gray-300 hover:text-white transition-colors cursor-pointer group">
+                                                <input id="openNew" type="checkbox" checked class="rounded border-gray-600 bg-gray-700 text-purple-500 focus:ring-purple-500 focus:ring-offset-0">
+                                                <span class="group-hover:text-purple-300">Open in new tab</span>
+                                            </label>
+                                            <label class="flex items-center gap-2 text-sm text-gray-300 hover:text-white transition-colors cursor-pointer group">
+                                                <input id="persist" type="checkbox" checked class="rounded border-gray-600 bg-gray-700 text-purple-500 focus:ring-purple-500 focus:ring-offset-0">
+                                                <span class="group-hover:text-purple-300">Remember gallery</span>
+                                            </label>
+                                            <label class="flex items-center gap-2 text-sm text-gray-300 hover:text-white transition-colors cursor-pointer group">
+                                                <input id="blockReload" type="checkbox" checked class="rounded border-gray-600 bg-gray-700 text-purple-500 focus:ring-purple-500 focus:ring-offset-0">
+                                                <span class="group-hover:text-purple-300">Block reloads</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Action Buttons -->
+                                    <div class="flex gap-3">
+                                        <button id="ping" type="button" class="flex-1 px-4 py-3 rounded-xl text-sm font-medium text-gray-300 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-700/50 hover:border-gray-600/50 transition-all duration-300 group" title="Check server">
+                                            <i class="fas fa-heartbeat mr-2 text-red-400 group-hover:text-red-300"></i>Check Server
+                                        </button>
+                                        <button id="gen" type="button" class="flex-1 px-6 py-3 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 shadow-lg hover:shadow-xl hover:shadow-purple-500/25 transition-all duration-300 transform hover:-translate-y-0.5">
+                                            <i class="fas fa-magic mr-2"></i>Generate Image
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Status -->
+                                <div id="status" class="text-center text-sm text-gray-400 min-h-[1.5rem] p-3 rounded-xl bg-gray-800/20 border border-gray-700/30"></div>
+                            </div>
+
+                            <!-- Right Column: Image Preview -->
+                            <div class="space-y-6">
+                                <div class="text-center">
+                                    <div class="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl mb-3 shadow-lg">
+                                        <i class="fas fa-eye text-lg text-white"></i>
+                                    </div>
+                                    <h3 class="text-xl font-bold text-gray-200 mb-2">Generated Image</h3>
+                                    <p class="text-gray-400">Your AI masterpiece will appear here</p>
+                                </div>
+                                
+                                <!-- Preview Container -->
+                                <div class="relative group">
+                                    <div class="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
+                                    <div id="preview-container" class="preview-placeholder relative rounded-2xl border-2 border-dashed border-gray-600/50 aspect-square flex items-center justify-center overflow-hidden bg-gray-900/30 backdrop-blur-sm group-hover:border-gray-500/50 transition-all duration-300">
+                                        <div class="text-center text-gray-500 group-hover:text-gray-400 transition-colors">
+                                            <div class="w-16 h-16 bg-gradient-to-br from-gray-700 to-gray-800 rounded-2xl flex items-center justify-center mb-4 mx-auto">
+                                                <i class="fas fa-image text-2xl opacity-60"></i>
+                                            </div>
+                                            <p class="text-sm font-medium">Ready to create magic?</p>
+                                            <p class="text-xs mt-1 opacity-70">Your image will appear here</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Preview Actions -->
+                                <div id="preview-actions" class="hidden space-y-4">
+                                    <div class="bg-gray-800/30 rounded-xl p-4 border border-gray-700/50">
+                                        <h4 class="text-sm font-semibold text-gray-300 mb-3 flex items-center">
+                                            <i class="fas fa-download mr-2 text-green-400"></i>Download Options
+                                        </h4>
+                                        <div class="flex gap-3">
+                                            <button id="preview-open" class="flex-1 px-4 py-3 text-sm font-medium text-purple-300 hover:text-purple-200 bg-purple-900/30 hover:bg-purple-900/50 border border-purple-700/30 hover:border-purple-600/50 rounded-xl transition-all duration-300 group">
+                                                <i class="fas fa-external-link-alt mr-2 group-hover:scale-110 transition-transform"></i>Open Full Size
+                                            </button>
+                                            <button id="preview-download" class="flex-1 px-4 py-3 text-sm font-medium text-blue-300 hover:text-blue-200 bg-blue-900/30 hover:bg-blue-900/50 border border-blue-700/30 hover:border-blue-600/50 rounded-xl transition-all duration-300 group">
+                                                <i class="fas fa-download mr-2 group-hover:scale-110 transition-transform"></i>Download
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="bg-gray-800/20 rounded-xl p-3 border border-gray-700/30">
+                                        <p class="text-xs text-gray-400 font-medium mb-1">Original Prompt:</p>
+                                        <p id="preview-prompt" class="text-xs text-gray-500 italic leading-relaxed"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gallery Section -->
+        <section class="relative overflow-hidden py-16">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-4">Your Generated Images</h2>
+                    <p class="text-gray-400">All your AI-generated images will appear here</p>
+                </div>
+                
+                <div id="gallery" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+            </div>
+        </section>
+    </main>
+
+
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <span class="text-2xl font-bold gradient-text">Perseptra</span>
+                    <p class="text-gray-400 mt-4">The most advanced AI media generation platform for creators.</p>
+                    <div class="flex space-x-4 mt-6">
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fab fa-discord"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">Product</h3>
+                    <ul class="space-y-3">
+                        <li><a href="image.html" class="text-gray-400 hover:text-white">Image Generator</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Video Generator</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Pricing</a></li>
+                    </ul>
+  </div>
+
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">Company</h3>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-400 hover:text-white">About</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Blog</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Careers</a></li>
+                    </ul>
+  </div>
+
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">Legal</h3>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Privacy Policy</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Terms of Service</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Cookie Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="mt-12 pt-8 border-t border-gray-800">
+                <p class="text-gray-400 text-sm text-center">&copy; 2023 Perseptra. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+      <script>
+      // ---------------- CONFIG ----------------
+      const API = "http://127.0.0.1:5000"; // change if your Flask runs elsewhere
+      
+      // Firebase configuration
+      const firebaseConfig = {
+        apiKey: 'AIzaSyD9_vulE5tWDNKQqr6OPCmkFUx8l-Gs1Qg',
+        authDomain: 'perseptra.firebaseapp.com',
+        databaseURL: 'https://perseptra-default-rtdb.firebaseio.com',
+        projectId: 'perseptra',
+        storageBucket: 'perseptra.firebasestorage.app',
+        messagingSenderId: '902121213105',
+        appId: '1:902121213105:web:df5a0b2da4f2b8845de690',
+        measurementId: 'G-WP8V4VRDQP'
+      };
+
+    // ---------------- STATE ----------------
+    const els = {
+      prompt: document.getElementById("prompt"),
+      gen: document.getElementById("gen"),
+      ping: document.getElementById("ping"),
+      openNew: document.getElementById("openNew"),
+      persist: document.getElementById("persist"),
+      blockReload: document.getElementById("blockReload"),
+      status: document.getElementById("status"),
+      gallery: document.getElementById("gallery"),
+            charCount: document.getElementById("char-count"),
+            previewContainer: document.getElementById("preview-container"),
+            previewActions: document.getElementById("preview-actions"),
+            previewOpen: document.getElementById("preview-open"),
+            previewDownload: document.getElementById("preview-download"),
+            previewPrompt: document.getElementById("preview-prompt")
+    };
+
+            const LS_KEY = "gcig_gallery_v1"; // gallery persistence
+        const THEME_LS_KEY = "gcig_theme_v1"; // theme persistence
+        let galleryData = [];
+        let selectedTheme = "realistic"; // default theme
+        let allowNavigationFlag = false; // flag to allow navigation
+
+    // ---------------- UTIL ----------------
+        function setStatus(msg) { 
+            els.status.textContent = msg || ""; 
+            if (msg) {
+                let statusClass = "text-center text-sm min-h-[1.5rem] p-3 rounded-xl border transition-all duration-300 ";
+                let icon = "";
+                
+                if (msg.includes("Error") || msg.includes("failed")) {
+                    statusClass += "text-red-300 bg-red-900/20 border-red-700/30";
+                    icon = "❌ ";
+                } else if (msg.includes("Generating")) {
+                    statusClass += "text-yellow-300 bg-yellow-900/20 border-yellow-700/30";
+                    icon = "⚡ ";
+                } else if (msg.includes("OK") || msg.includes("successfully")) {
+                    statusClass += "text-green-300 bg-green-900/20 border-green-700/30";
+                    icon = "✅ ";
+                } else if (msg.includes("Please log in")) {
+                    statusClass += "text-purple-300 bg-purple-900/20 border-purple-700/30";
+                    icon = "🔐 ";
+                } else {
+                    statusClass += "text-gray-300 bg-gray-800/20 border-gray-700/30";
+                    icon = "ℹ️ ";
+                }
+                
+                els.status.className = statusClass;
+                els.status.innerHTML = icon + msg;
+            } else {
+                els.status.className = "text-center text-sm min-h-[1.5rem] p-3 rounded-xl bg-gray-800/20 border border-gray-700/30";
+                els.status.innerHTML = "";
+            }
+        }
+        
+            function nowTs() { return Date.now(); }
+
+        // Theme mapping for prompt prefixes
+        const themePrefixes = {
+            realistic: "Create a photorealistic image of ",
+            anime: "Create an anime-style illustration of ",
+            cartoon: "Create a cartoon-style illustration of ",
+            cyberpunk: "Create a cyberpunk-themed digital art of ",
+            fantasy: "Create a fantasy-themed artwork of ",
+            watercolor: "Create a watercolor painting style artwork of "
+        };
+
+        // Theme selection functions
+        function selectTheme(theme) {
+            console.log('selectTheme called with:', theme);
+            selectedTheme = theme;
+            
+            // Update button states
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            const activeButton = document.querySelector(`[data-theme="${theme}"]`);
+            if (activeButton) {
+                activeButton.classList.add('active');
+                console.log('Set active button:', theme);
+            } else {
+                console.error('Could not find button for theme:', theme);
+            }
+            
+            // Save to localStorage
+            try {
+                localStorage.setItem(THEME_LS_KEY, theme);
+                console.log('Saved theme to localStorage:', theme);
+            } catch (error) {
+                console.error('Failed to save theme:', error);
+            }
+            
+            // Update status
+            setStatus(`Theme set to: ${theme.charAt(0).toUpperCase() + theme.slice(1)}`);
+        }
+
+        function loadTheme() {
+            try {
+                const savedTheme = localStorage.getItem(THEME_LS_KEY);
+                if (savedTheme && themePrefixes[savedTheme]) {
+                    selectedTheme = savedTheme;
+                }
+            } catch {}
+            
+            // Set initial active state
+            selectTheme(selectedTheme);
+        }
+
+        function getThemedPrompt(userPrompt) {
+            const prefix = themePrefixes[selectedTheme] || themePrefixes.realistic;
+            return prefix + userPrompt;
+        }
+
+        // Navigation control function
+        function allowNavigation() {
+            allowNavigationFlag = true;
+        }
+
+    function toAbsoluteUrl(data) {
+      // Backend may return { url } or { relative_url }
+      if (data.url) return data.url;
+      if (data.relative_url) return API.replace(/\/+$/,"") + data.relative_url;
+      return null;
+    }
+
+    function saveGallery() {
+      if (!els.persist.checked) return;
+      try { localStorage.setItem(LS_KEY, JSON.stringify(galleryData)); } catch {}
+    }
+
+            function loadGallery() {
+          try {
+            const raw = localStorage.getItem(LS_KEY);
+            if (!raw) return;
+            const arr = JSON.parse(raw);
+            if (Array.isArray(arr)) {
+              galleryData = arr;
+              galleryData.forEach(item => addImageToDom(item.url, item.prompt, false));
+              
+              // Show the most recent image in the preview area
+              if (galleryData.length > 0) {
+                const lastImage = galleryData[0]; // Most recent is at index 0
+                updatePreview(lastImage.url, lastImage.prompt);
+              }
+            }
+          } catch {}
+        }
+
+    function addImageToDom(url, promptText, prepend = true) {
+      // Cache-bust in case browser is sticky
+      const src = `${url}${url.includes("?") ? "&" : "?"}v=${nowTs()}`;
+            
+            const card = document.createElement("div");
+            card.className = "gallery-card bg-gray-900/50 rounded-xl border border-gray-800 overflow-hidden";
+            
+      const img = document.createElement("img");
+      img.src = src;
+      img.alt = "Generated image";
+            img.className = "w-full h-48 object-cover";
+            
+            const content = document.createElement("div");
+            content.className = "p-4";
+            
+            const caption = document.createElement("p");
+            caption.className = "text-sm text-gray-300 mb-3 line-clamp-2";
+            caption.textContent = promptText ? `Prompt: ${promptText}` : "";
+            
+            const links = document.createElement("div");
+            links.className = "flex gap-2";
+            
+            const openBtn = document.createElement("a");
+            openBtn.href = url;
+            openBtn.target = "_blank";
+            openBtn.rel = "noopener";
+            openBtn.className = "flex-1 px-3 py-2 text-xs font-medium text-center text-purple-400 hover:text-purple-300 bg-purple-900/20 hover:bg-purple-900/30 rounded-lg transition duration-300";
+            openBtn.innerHTML = '<i class="fas fa-external-link-alt mr-1"></i>Open';
+            
+            const downloadBtn = document.createElement("a");
+            downloadBtn.href = url;
+            downloadBtn.download = "";
+            downloadBtn.className = "flex-1 px-3 py-2 text-xs font-medium text-center text-blue-400 hover:text-blue-300 bg-blue-900/20 hover:bg-blue-900/30 rounded-lg transition duration-300";
+            downloadBtn.innerHTML = '<i class="fas fa-download mr-1"></i>Download';
+            
+            links.appendChild(openBtn);
+            links.appendChild(downloadBtn);
+            
+            content.appendChild(caption);
+            content.appendChild(links);
+            
+            card.appendChild(img);
+            card.appendChild(content);
+
+            if (prepend) els.gallery.prepend(card);
+            else els.gallery.appendChild(card);
+    }
+
+    function addImage(url, promptText) {
+      addImageToDom(url, promptText, true);
+      galleryData.unshift({ url, prompt: promptText, t: nowTs() });
+      // Keep last 100
+      if (galleryData.length > 100) galleryData.length = 100;
+      saveGallery();
+            
+            // Update preview area
+            updatePreview(url, promptText);
+            
+      if (els.openNew.checked) {
+        try { window.open(url, "_blank", "noopener"); } catch {}
+      }
+    }
+
+        function updatePreview(url, promptText) {
+            // Cache-bust the image
+            const src = `${url}${url.includes("?") ? "&" : "?"}v=${nowTs()}`;
+            
+            // Update preview container
+            els.previewContainer.innerHTML = `
+                <img src="${src}" alt="Generated image" class="w-full h-full object-cover rounded-xl">
+            `;
+            els.previewContainer.className = "rounded-2xl border-2 border-gray-600 aspect-square relative overflow-hidden bg-gray-800";
+            
+            // Update preview prompt
+            els.previewPrompt.textContent = promptText;
+            
+            // Show preview actions
+            els.previewActions.classList.remove("hidden");
+            
+            // Update action buttons
+            els.previewOpen.href = url;
+            els.previewOpen.target = "_blank";
+            els.previewDownload.href = url;
+            els.previewDownload.download = "";
+        }
+
+    // -------------- HARD BLOCK RELOADS (optional) --------------
+    function enableReloadBlockers() {
+      // Global cancel of any form submits (even if some extension injects one)
+      document.addEventListener("submit", (e) => { e.preventDefault(); e.stopPropagation(); }, true);
+
+      // Block Enter from submitting implicit forms
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) {
+          // Prevent any default that might cause a navigation
+          e.preventDefault();
+        }
+      }, true);
+
+             // Silently prevent page reloads without showing popup
+       window.addEventListener("beforeunload", (e) => {
+         if (!els.blockReload.checked) return;
+         if (allowNavigationFlag) return; // Allow navigation if flag is set
+         // Prevent the reload silently without showing any dialog
+         e.preventDefault();
+         e.stopImmediatePropagation();
+         return false;
+       });
+
+      // Try to neutralize common live-reload scripts (best effort)
+      const killers = () => {
+        document.querySelectorAll('script[src]').forEach(s => {
+          const src = s.getAttribute("src") || "";
+          if (/livereload|live-server|vite|hmr|reload/i.test(src)) {
+            try { s.remove(); } catch {}
+          }
+        });
+      };
+      killers();
+            
+      try {
+        const orig = window.location.reload?.bind(window.location);
+        Object.defineProperty(window.location, "reload", { value: function(){ console.log("[block] reload prevented"); }, configurable: false });
+      } catch {}
+    }
+
+    // ---------------- ACTIONS ----------------
+    async function pingServer() {
+      setStatus("Pinging server…");
+      try {
+        const r = await fetch(`${API}/health`, { cache: "no-store" });
+        const j = await r.json();
+        setStatus(j && j.ok ? "Server OK" : "Server not OK");
+      } catch {
+        setStatus("Cannot reach server. Is index.py running on 127.0.0.1:5000?");
+      }
+    }
+
+    async function generate() {
+      // Check if user is logged in
+      if (!window.getCurrentUser()) {
+        setStatus("Please log in to generate images");
+        return;
+      }
+
+      const prompt = els.prompt.value.trim();
+            if (!prompt) { 
+                setStatus("Please enter a prompt");
+                return; 
+            }
+
+      // Ensure no accidental page navigation while working
+      els.gen.disabled = true;
+            els.gen.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Generating...';
+            setStatus("Generating image...");
+
+      try {
+        const themedPrompt = getThemedPrompt(prompt);
+        console.log("Sending themed prompt:", themedPrompt);
+        
+                        const res = await fetch(`${API}/generate`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ 
+            prompt: themedPrompt,
+            userId: window.getCurrentUser().uid
+          })
+        });
+
+        let data = {};
+        try { data = await res.json(); } catch {}
+
+        if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+
+        if (data.url) {
+          const url = data.url;
+          addImage(url, prompt);
+          setStatus("Image generated successfully!"); // clear on success
+          
+          // Update credit display
+          if (data.remainingCredits !== undefined) {
+            const navCredits = document.getElementById('nav-credits');
+            const navCreditsMobile = document.getElementById('nav-credits-mobile');
+            if (navCredits) navCredits.textContent = String(data.remainingCredits);
+            if (navCreditsMobile) navCreditsMobile.textContent = String(data.remainingCredits);
+          }
+        } else {
+          throw new Error(data.error || "No image URL returned by server");
+        }
+      } catch (err) {
+        console.error(err);
+        setStatus("Error: " + err.message);
+      } finally {
+        els.gen.disabled = false;
+                els.gen.innerHTML = '<i class="fas fa-magic mr-2"></i>Generate Image';
+            }
+        }
+
+        // Character counter
+        function updateCharCount() {
+            const count = els.prompt.value.length;
+            els.charCount.textContent = count;
+            if (count > 450) {
+                els.charCount.className = "text-red-400";
+            } else if (count > 400) {
+                els.charCount.className = "text-yellow-400";
+            } else {
+                els.charCount.className = "text-gray-500";
+      }
+    }
+
+    // ---------------- INIT ----------------
+    (function init() {
+      enableReloadBlockers();
+      loadGallery();
+      loadTheme();
+
+      els.gen.addEventListener("click", generate);
+      els.ping.addEventListener("click", pingServer);
+            els.prompt.addEventListener("input", updateCharCount);
+
+      // Hitting Enter inside the prompt triggers generate but NOT a submit
+      els.prompt.addEventListener("keydown", (e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          generate();
+        }
+      });
+
+            // Preview action buttons
+            els.previewOpen.addEventListener("click", (e) => {
+                e.preventDefault();
+                if (els.previewOpen.href) {
+                    window.open(els.previewOpen.href, "_blank", "noopener");
+                }
+            });
+
+            els.previewDownload.addEventListener("click", (e) => {
+                e.preventDefault();
+                if (els.previewDownload.href) {
+                    const link = document.createElement('a');
+                    link.href = els.previewDownload.href;
+                    link.download = "";
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+            });
+
+            // Theme button event listeners - with delay to ensure DOM is ready
+            setTimeout(() => {
+                console.log('Setting up theme button listeners...');
+                const themeButtons = document.querySelectorAll('.theme-btn');
+                console.log('Found theme buttons:', themeButtons.length);
+                
+                themeButtons.forEach(btn => {
+                    console.log('Adding listener to button:', btn.getAttribute('data-theme'));
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const theme = btn.getAttribute('data-theme');
+                        console.log('Theme button clicked:', theme);
+                        selectTheme(theme);
+                    });
+                });
+            }, 100);
+
+            // Initialize character count
+            updateCharCount();
+            
+            // Fallback event delegation for theme buttons
+            document.addEventListener('click', (e) => {
+                if (e.target.closest('.theme-btn')) {
+                    const btn = e.target.closest('.theme-btn');
+                    const theme = btn.getAttribute('data-theme');
+                    console.log('Theme button clicked via delegation:', theme);
+                    selectTheme(theme);
+                }
+            });
+    })();
+  </script>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    // Firebase SDKs (modular) via CDN
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+    import { getAnalytics, isSupported as analyticsIsSupported } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js';
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      GoogleAuthProvider,
+      signInWithPopup,
+      signInWithRedirect,
+      getRedirectResult,
+      updateProfile,
+      onAuthStateChanged,
+      setPersistence,
+      browserLocalPersistence,
+      signOut
+    } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+    import { getDatabase, ref, set, update, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    try {
+      if (await analyticsIsSupported()) {
+        getAnalytics(app);
+      }
+    } catch (err) {
+      console.warn('Analytics not supported in this environment.');
+    }
+
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+    
+    // Persist auth state locally across reloads
+    setPersistence(auth, browserLocalPersistence).catch(() => {});
+
+    // Global auth state
+    let currentUser = null;
+
+    // Auth state observer
+    onAuthStateChanged(auth, (user) => {
+      currentUser = user;
+      updateAuthUI(user);
+    });
+
+    // Update UI based on auth state
+    function updateAuthUI(user) {
+      const signedOut = document.getElementById('auth-signed-out');
+      const signedIn = document.getElementById('auth-signed-in');
+      const signedOutMobile = document.getElementById('auth-signed-out-mobile');
+      const signedInMobile = document.getElementById('auth-signed-in-mobile');
+
+      if (user) {
+        // Desktop
+        signedOut?.classList.add('hidden');
+        signedIn?.classList.remove('hidden');
+        // Mobile
+        signedOutMobile?.classList.add('hidden');
+        signedInMobile?.classList.remove('hidden');
+
+        const name = user.displayName || (user.email ? user.email.split('@')[0] : 'User');
+        const initials = (user.displayName || name)
+          .split(' ')
+          .map(w => w[0])
+          .join('')
+          .slice(0, 2)
+          .toUpperCase();
+        
+        const avatar = document.getElementById('user-avatar');
+        const avatarM = document.getElementById('user-avatar-mobile');
+        const nameEl = document.getElementById('user-display-name');
+        const nameElM = document.getElementById('user-display-name-mobile');
+        
+        if (avatar) avatar.textContent = initials;
+        if (avatarM) avatarM.textContent = initials;
+        if (nameEl) nameEl.textContent = name;
+        if (nameElM) nameElM.textContent = name;
+        
+        // Load user credits
+        loadUserCredits(user.uid);
+      } else {
+        signedOut?.classList.remove('hidden');
+        signedIn?.classList.add('hidden');
+        signedOutMobile?.classList.remove('hidden');
+        signedInMobile?.classList.add('hidden');
+      }
+    }
+
+    // Load user credits function
+    async function loadUserCredits(userId) {
+      try {
+        const response = await fetch(`http://127.0.0.1:5000/get-credits/${userId}`);
+        const data = await response.json();
+        
+        if (data.balance !== undefined) {
+          const navCredits = document.getElementById('nav-credits');
+          const navCreditsMobile = document.getElementById('nav-credits-mobile');
+          if (navCredits) navCredits.textContent = String(data.balance);
+          if (navCreditsMobile) navCreditsMobile.textContent = String(data.balance);
+          
+          console.log(`Loaded credits from Firebase: ${data.balance}`);
+          return data.balance;
+        }
+      } catch (error) {
+        console.error('Error loading credits from Firebase:', error);
+        const navCredits = document.getElementById('nav-credits');
+        const navCreditsMobile = document.getElementById('nav-credits-mobile');
+        if (navCredits) navCredits.textContent = '0';
+        if (navCreditsMobile) navCreditsMobile.textContent = '0';
+        return 0;
+      }
+    }
+
+
+
+    // Mobile menu toggle
+    document.addEventListener('click', (e) => {
+      if (e.target.id === 'mobile-menu-button' || e.target.closest('#mobile-menu-button')) {
+        const menu = document.getElementById('mobile-menu');
+        menu.classList.toggle('hidden');
+      }
+      
+      // User menu toggle
+      const btn = document.getElementById('user-menu-button');
+      const menu = document.getElementById('user-menu');
+      if (!btn || !menu) return;
+      if (btn.contains(e.target)) {
+        menu.classList.toggle('hidden');
+      } else if (!menu.contains(e.target)) {
+        menu.classList.add('hidden');
+      }
+    });
+
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', (e) => {
+      const mobileMenu = document.getElementById('mobile-menu');
+      const mobileMenuButton = document.getElementById('mobile-menu-button');
+      
+      if (mobileMenu && !mobileMenu.contains(e.target) && !mobileMenuButton.contains(e.target)) {
+        mobileMenu.classList.add('hidden');
+      }
+    });
+
+
+
+    window.logout = async function logout() {
+      try {
+        await signOut(auth);
+        alert('Logged out');
+      } catch (err) {
+        alert(err.message || 'Logout failed');
+      }
+    };
+
+    // Make auth available globally
+    window.getCurrentUser = () => currentUser;
+    window.requireAuth = (callback) => {
+      if (!currentUser) {
+        alert('Please log in to generate images.');
+        return false;
+      }
+      return callback();
+    };
+  </script>
+</body>
+</html>

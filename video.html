@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perseptra - AI Video Generation Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="16x16" href="Media/image.png?v=2">
+    <link rel="icon" type="image/png" sizes="32x32" href="Media/image.png?v=2">
+    <link rel="shortcut icon" href="Media/image.png?v=2">
+    <link rel="apple-touch-icon" sizes="180x180" href="Media/image.png?v=2">
+    <meta name="theme-color" content="#0f0f13">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f0f13;
+            color: #e2e2e2;
+            min-height: 100vh;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(90deg, #a78bfa, #c4b5fd);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.3);
+        }
+        
+        .nav-link:hover {
+            color: #8b5cf6;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .slide-up {
+            animation: slideUp 0.5s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .input-field {
+            background-color: #1a1a23;
+            transition: all 0.3s ease;
+        }
+        
+        .input-field:focus {
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+        }
+        
+        .generator-container {
+            background: linear-gradient(145deg, #1a1a23, #0f0f13);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .preview-placeholder {
+            background: linear-gradient(145deg, #2a2a35, #1a1a23);
+        }
+        
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.5), transparent);
+        }
+
+        /* Mobile-specific improvements */
+        @media (max-width: 768px) {
+            /* Improve touch targets */
+            button, .btn-primary, .btn-secondary {
+                min-height: 44px;
+            }
+            
+            /* Better spacing for mobile */
+            .generator-container {
+                padding: 1.5rem !important;
+            }
+            
+            /* Ensure proper text sizing on mobile */
+            .text-4xl {
+                font-size: 2rem !important;
+            }
+            
+            .text-2xl {
+                font-size: 1.5rem !important;
+            }
+        }
+
+        .gallery-card {
+            transition: all 0.3s ease;
+        }
+        
+        .gallery-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Mobile/light tweaks */
+        @media (max-width: 640px) {
+            body { background-color: #14141b; }
+            .gradient-text {
+                background: none !important;
+                -webkit-background-clip: initial;
+                background-clip: initial;
+                -webkit-text-fill-color: inherit;
+                color: #f3f4f6;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Global background gradient overlay -->
+    <div class="fixed inset-0 -z-10 pointer-events-none bg-gradient-to-br from-purple-900/20 via-transparent to-blue-900/20"></div>
+    
+    <!-- Navigation -->
+    <nav class="bg-gray-900/80 backdrop-blur-md fixed w-full z-50 border-b border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <span class="text-2xl font-bold gradient-text">Perseptra</span>
+                    </div>
+                    <div class="hidden md:block">
+                        <div class="ml-10 flex items-baseline space-x-4">
+                            <a href="index.html" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white transition duration-300">Home</a>
+                            <a href="image.html" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white transition duration-300">Image Generator</a>
+                            <a href="video.html" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-white bg-purple-600/20 rounded-md">Video Generator</a>
+                            <a href="pricing.html" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white transition duration-300">Pricing</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="hidden md:block">
+                    <!-- Signed-out state -->
+                    <div id="auth-signed-out" class="ml-4 flex items-center md:ml-6">
+                        <button class="px-4 py-2 rounded-md text-sm font-medium text-white bg-transparent border border-gray-700 hover:bg-gray-800 transition duration-300 mr-3" onclick="showLoginModal()">
+                            Login
+                        </button>
+                        <button class="btn-primary px-4 py-2 rounded-md text-sm font-medium text-white" onclick="showSignupModal()">
+                            Sign Up
+                        </button>
+                    </div>
+                    <!-- Signed-in state -->
+                    <div id="auth-signed-in" class="ml-4 items-center md:ml-6 hidden">
+                        <div class="relative">
+                            <button id="user-menu-button" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-800 transition">
+                                <span id="user-avatar" class="h-8 w-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-xs font-semibold text-white"></span>
+                                <span id="user-display-name" class="text-sm font-medium"></span>
+                                <!-- Credits Display -->
+                                <div class="flex items-center gap-1.5 px-2 py-1 bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border border-yellow-500/30 rounded-md">
+                                    <i class="fas fa-coins text-yellow-400 text-xs"></i>
+                                    <span id="nav-credits" class="text-xs font-semibold text-yellow-300">0</span>
+                                </div>
+                                <i class="fas fa-chevron-down text-xs text-gray-400 ml-1"></i>
+                            </button>
+                            <div id="user-menu" class="absolute right-0 mt-2 w-52 bg-gray-900 border border-gray-800 rounded-md shadow-xl py-1 hidden">
+                                <button class="w-full text-left px-4 py-2 text-sm hover:bg-gray-800" onclick="showPage('settings'); document.getElementById('user-menu').classList.add('hidden');">
+                                    <i class="fas fa-user-cog mr-2"></i> Settings
+                                </button>
+                                <button class="w-full text-left px-4 py-2 text-sm hover:bg-gray-800" onclick="showPage('my-content'); document.getElementById('user-menu').classList.add('hidden');">
+                                    <i class="fas fa-folder-open mr-2"></i> My Content
+                                </button>
+                                <button class="w-full text-left px-4 py-2 text-sm hover:bg-gray-800" onclick="showPage('credits'); document.getElementById('user-menu').classList.add('hidden');">
+                                    <i class="fas fa-coins mr-2"></i> Credits
+                                </button>
+                                <div class="my-1 border-t border-gray-800"></div>
+                                <button class="w-full text-left px-4 py-2 text-sm hover:bg-gray-800" onclick="logout(); document.getElementById('user-menu').classList.add('hidden');">
+                                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="-mr-2 flex md:hidden">
+                    <button type="button" id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white" aria-controls="mobile-menu" aria-expanded="false">
+                        <span class="sr-only">Open main menu</span>
+                        <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile menu -->
+        <div class="md:hidden hidden" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="index.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">Home</a>
+                <a href="image.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">Image Generator</a>
+                <a href="video.html" class="block px-3 py-2 rounded-md text-base font-medium text-white bg-purple-600/20 rounded-md">Video Generator</a>
+                <a href="pricing.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">Pricing</a>
+            </div>
+            <div class="pt-4 pb-3 border-t border-gray-700 px-3">
+                <!-- Signed-out (mobile) -->
+                <div id="auth-signed-out-mobile" class="mt-3 space-y-1">
+                    <button class="block w-full px-4 py-2 rounded-md text-base font-medium text-white bg-transparent border border-gray-700 hover:bg-gray-800 transition duration-300 mb-2" onclick="showLoginModal()">
+                        Login
+                    </button>
+                    <button class="btn-primary block w-full px-4 py-2 rounded-md text-base font-medium text-white" onclick="showSignupModal()">
+                        Sign Up
+                    </button>
+                </div>
+                <!-- Signed-in (mobile) -->
+                <div id="auth-signed-in-mobile" class="mt-3 space-y-3 hidden">
+                    <div class="flex items-center gap-3 px-2">
+                        <span id="user-avatar-mobile" class="h-9 w-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-sm font-semibold text-white"></span>
+                        <div class="flex-1">
+                            <p id="user-display-name-mobile" class="font-medium"></p>
+                            <p class="text-xs text-gray-400">Signed in</p>
+                        </div>
+                        <!-- Mobile Credits Display -->
+                        <div class="flex items-center gap-1.5 px-2 py-1 bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border border-yellow-500/30 rounded-md">
+                            <i class="fas fa-coins text-yellow-400 text-xs"></i>
+                            <span id="nav-credits-mobile" class="text-xs font-semibold text-yellow-300">0</span>
+                        </div>
+                    </div>
+                    <button class="block w-full px-4 py-2 rounded-md text-base font-medium bg-gray-800 hover:bg-gray-700 transition duration-300" onclick="logout()">
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-16 pb-12">
+        <!-- Under Construction Section -->
+        <section class="relative overflow-hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+
+                <!-- Construction Status -->
+                <div class="max-w-4xl mx-auto">
+                    <div class="generator-container rounded-3xl p-8 md:p-12">
+                        <div class="text-center mb-8">
+                            <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full mb-6">
+                                <i class="fas fa-hard-hat text-2xl text-gray-900"></i>
+                            </div>
+                            <h2 class="text-2xl md:text-3xl font-bold mb-4">🚧 Under Construction 🚧</h2>
+                            <p class="text-gray-400">Our AI video generation feature is currently in development</p>
+                        </div>
+                        
+                        <!-- Progress Indicators -->
+                        <div class="grid md:grid-cols-3 gap-6 mb-8">
+                            <div class="text-center p-6 bg-gray-800/50 rounded-xl border border-gray-700">
+                                <div class="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-check text-green-400"></i>
+                                </div>
+                                <h3 class="font-semibold text-white mb-2">Backend API</h3>
+                                <p class="text-sm text-gray-400">Core infrastructure ready</p>
+                            </div>
+                            
+                            <div class="text-center p-6 bg-gray-800/50 rounded-xl border border-gray-700">
+                                <div class="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-cog fa-spin text-yellow-400"></i>
+                                </div>
+                                <h3 class="font-semibold text-white mb-2">AI Models</h3>
+                                <p class="text-sm text-gray-400">Training in progress</p>
+                            </div>
+                            
+                            <div class="text-center p-6 bg-gray-800/50 rounded-xl border border-gray-700">
+                                <div class="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-clock text-blue-400"></i>
+                                </div>
+                                <h3 class="font-semibold text-white mb-2">UI/UX</h3>
+                                <p class="text-sm text-gray-400">Design phase</p>
+                            </div>
+                        </div>
+
+                        <!-- Features Preview -->
+                        <div class="bg-gray-800/30 rounded-2xl p-6 mb-8">
+                            <h3 class="text-lg font-semibold text-white mb-4 text-center">🎬 What's Coming</h3>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="flex items-start gap-3">
+                                    <div class="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                                        <i class="fas fa-magic text-purple-400 text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium text-white">AI-Powered Generation</h4>
+                                        <p class="text-sm text-gray-400">Create videos from text descriptions</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-3">
+                                    <div class="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                                        <i class="fas fa-film text-blue-400 text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium text-white">Multiple Formats</h4>
+                                        <p class="text-sm text-gray-400">5-30 second videos in HD/4K</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-3">
+                                    <div class="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                                        <i class="fas fa-palette text-green-400 text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium text-white">Style Options</h4>
+                                        <p class="text-sm text-gray-400">Anime, realistic, artistic styles</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-3">
+                                    <div class="w-8 h-8 bg-orange-500/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                                        <i class="fas fa-download text-orange-400 text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium text-white">Easy Export</h4>
+                                        <p class="text-sm text-gray-400">Download and share instantly</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Call to Action -->
+                        <div class="text-center">
+                            <div class="bg-gradient-to-r from-purple-600/20 to-blue-600/20 rounded-2xl p-6 border border-purple-500/30">
+                                <h3 class="text-lg font-semibold text-white mb-3">🎉 Be the First to Know!</h3>
+                                <p class="text-gray-400 mb-4">Get notified when video generation launches</p>
+                                <div class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+                                    <input 
+                                        type="email" 
+                                        placeholder="Enter your email" 
+                                        class="flex-1 px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-500"
+                                    >
+                                    <button class="btn-primary px-6 py-3 rounded-lg font-semibold text-white">
+                                        Notify Me
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alternative Options -->
+                <div class="max-w-4xl mx-auto mt-12">
+                    <div class="text-center mb-8">
+                        <h2 class="text-2xl font-bold text-white mb-4">Try Our Other Features</h2>
+                        <p class="text-gray-400">While you wait, explore our working AI tools</p>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <a href="image.html" class="group">
+                            <div class="generator-container rounded-2xl p-6 hover:scale-105 transition-all duration-300">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                                        <i class="fas fa-image text-white text-xl"></i>
+                                    </div>
+                                    <div class="text-left">
+                                        <h3 class="font-semibold text-white group-hover:text-purple-400 transition-colors">AI Image Generator</h3>
+                                        <p class="text-sm text-gray-400">Create stunning images from text</p>
+                                    </div>
+                                    <i class="fas fa-arrow-right text-gray-400 ml-auto group-hover:text-purple-400 transition-colors"></i>
+                                </div>
+                            </div>
+                        </a>
+                        
+                        <a href="pricing.html" class="group">
+                            <div class="generator-container rounded-2xl p-6 hover:scale-105 transition-all duration-300">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center">
+                                        <i class="fas fa-coins text-white text-xl"></i>
+                                    </div>
+                                    <div class="text-left">
+                                        <h3 class="font-semibold text-white group-hover:text-yellow-400 transition-colors">Get Credits</h3>
+                                        <p class="text-sm text-gray-400">Purchase credits for future use</p>
+                                    </div>
+                                    <i class="fas fa-arrow-right text-gray-400 ml-auto group-hover:text-yellow-400 transition-colors"></i>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-gray-800 rounded-2xl p-8 max-w-md w-full border border-gray-700">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-white">Login</h2>
+                    <button onclick="hideLoginModal()" class="text-gray-400 hover:text-white">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <form onsubmit="event.preventDefault(); login();">
+                    <div class="mb-4">
+                        <label class="block text-gray-300 mb-2">Email</label>
+                        <input type="email" id="login-email" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500" required>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-gray-300 mb-2">Password</label>
+                        <input type="password" id="login-password" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500" required>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-300">
+                        Login
+                    </button>
+                </form>
+                
+                <div class="mt-6 text-center">
+                    <p class="text-gray-400">Don't have an account? 
+                        <button onclick="showSignupModal()" class="text-purple-400 hover:text-purple-300">Sign up</button>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div id="signup-modal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-gray-800 rounded-2xl p-8 max-w-md w-full border border-gray-700">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-white">Sign Up</h2>
+                    <button onclick="hideSignupModal()" class="text-gray-400 hover:text-white">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <form onsubmit="event.preventDefault(); signup();">
+                    <div class="mb-4">
+                        <label class="block text-gray-300 mb-2">Full Name</label>
+                        <input type="text" id="signup-name" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-300 mb-2">Email</label>
+                        <input type="email" id="signup-email" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-300 mb-2">Password</label>
+                        <input type="password" id="signup-password" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-300 mb-2">Confirm Password</label>
+                        <input type="password" id="signup-confirm-password" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500" required>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="flex items-center">
+                            <input type="checkbox" id="terms" class="mr-2" required>
+                            <span class="text-gray-300 text-sm">I agree to the <a href="#" class="text-purple-400">Terms of Service</a> and <a href="#" class="text-purple-400">Privacy Policy</a></span>
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-300">
+                        Create Account
+                    </button>
+                </form>
+                
+                <div class="mt-6 text-center">
+                    <p class="text-gray-400">Already have an account? 
+                        <button onclick="showLoginModal()" class="text-purple-400 hover:text-purple-300">Login</button>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-4 right-4 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 z-50">
+        <div class="flex items-center">
+            <i id="toast-icon" class="mr-2"></i>
+            <span id="toast-message"></span>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+        import { getDatabase, ref, set, update } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+
+        const firebaseConfig = {
+            apiKey: 'AIzaSyD9_vulE5tWDNKQqr6OPCmkFUx8l-Gs1Qg',
+            authDomain: 'perseptra.firebaseapp.com',
+            databaseURL: 'https://perseptra-default-rtdb.firebaseio.com',
+            projectId: 'perseptra',
+            storageBucket: 'perseptra.firebasestorage.app',
+            messagingSenderId: '902121213105',
+            appId: '1:902121213105:web:df5a0b2da4f2b8845de690',
+            measurementId: 'G-WP8V4VRDQP'
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        
+        // Persist auth state locally across reloads
+        setPersistence(auth, browserLocalPersistence).catch(() => {});
+
+        // Global auth state
+        let currentUser = null;
+
+        // Check for cached auth state to prevent flicker
+        const cachedUser = localStorage.getItem('cachedUser');
+        if (cachedUser) {
+            try {
+                const userData = JSON.parse(cachedUser);
+                // Temporarily show logged-in state while Firebase initializes
+                const signedOut = document.getElementById('auth-signed-out');
+                const signedIn = document.getElementById('auth-signed-in');
+                const signedOutMobile = document.getElementById('auth-signed-out-mobile');
+                const signedInMobile = document.getElementById('auth-signed-in-mobile');
+                
+                if (signedOut) signedOut.classList.add('hidden');
+                if (signedIn) signedIn.classList.remove('hidden');
+                if (signedOutMobile) signedOutMobile.classList.add('hidden');
+                if (signedInMobile) signedInMobile.classList.remove('hidden');
+                
+                // Set user info from cache
+                const name = userData.displayName || (userData.email ? userData.email.split('@')[0] : 'User');
+                const initials = (userData.displayName || name)
+                    .split(' ')
+                    .map(w => w[0])
+                    .join('')
+                    .slice(0, 2)
+                    .toUpperCase();
+                
+                const avatar = document.getElementById('user-avatar');
+                const avatarM = document.getElementById('user-avatar-mobile');
+                const nameEl = document.getElementById('user-display-name');
+                const nameElM = document.getElementById('user-display-name-mobile');
+                
+                if (avatar) avatar.textContent = initials;
+                if (avatarM) avatarM.textContent = initials;
+                if (nameEl) nameEl.textContent = name;
+                if (nameElM) nameElM.textContent = name;
+            } catch (e) {
+                console.warn('Failed to parse cached user data:', e);
+            }
+        }
+
+        // Auth state observer
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            updateAuthUI(user);
+        });
+
+        // Update UI based on auth state
+        function updateAuthUI(user) {
+            const signedOut = document.getElementById('auth-signed-out');
+            const signedIn = document.getElementById('auth-signed-in');
+            const signedOutMobile = document.getElementById('auth-signed-out-mobile');
+            const signedInMobile = document.getElementById('auth-signed-in-mobile');
+
+            if (user) {
+                // Cache user data for faster page loads
+                localStorage.setItem('cachedUser', JSON.stringify({
+                    uid: user.uid,
+                    email: user.email,
+                    displayName: user.displayName
+                }));
+                
+                // Desktop
+                signedOut?.classList.add('hidden');
+                signedIn?.classList.remove('hidden');
+                // Mobile
+                signedOutMobile?.classList.add('hidden');
+                signedInMobile?.classList.remove('hidden');
+
+                const name = user.displayName || (user.email ? user.email.split('@')[0] : 'User');
+                const initials = (user.displayName || name)
+                    .split(' ')
+                    .map(w => w[0])
+                    .join('')
+                    .slice(0, 2)
+                    .toUpperCase();
+                
+                const avatar = document.getElementById('user-avatar');
+                const avatarM = document.getElementById('user-avatar-mobile');
+                const nameEl = document.getElementById('user-display-name');
+                const nameElM = document.getElementById('user-display-name-mobile');
+                
+                if (avatar) avatar.textContent = initials;
+                if (avatarM) avatarM.textContent = initials;
+                if (nameEl) nameEl.textContent = name;
+                if (nameElM) nameElM.textContent = name;
+                
+                // Load user credits
+                loadUserCredits(user.uid);
+            } else {
+                signedOut?.classList.remove('hidden');
+                signedIn?.classList.add('hidden');
+                signedOutMobile?.classList.remove('hidden');
+                signedInMobile?.classList.add('hidden');
+            }
+        }
+
+        // Load user credits function
+        async function loadUserCredits(userId) {
+            try {
+                const response = await fetch(`http://127.0.0.1:5000/get-credits/${userId}`);
+                const data = await response.json();
+                
+                if (data.balance !== undefined) {
+                    const navCredits = document.getElementById('nav-credits');
+                    const navCreditsMobile = document.getElementById('nav-credits-mobile');
+                    if (navCredits) navCredits.textContent = String(data.balance);
+                    if (navCreditsMobile) navCreditsMobile.textContent = String(data.balance);
+                    
+                    console.log(`Loaded credits from Firebase: ${data.balance}`);
+                    return data.balance;
+                }
+            } catch (error) {
+                console.error('Error loading credits from Firebase:', error);
+                const navCredits = document.getElementById('nav-credits');
+                const navCreditsMobile = document.getElementById('nav-credits-mobile');
+                if (navCredits) navCredits.textContent = '0';
+                if (navCreditsMobile) navCreditsMobile.textContent = '0';
+                return 0;
+            }
+        }
+
+        // Modal functions
+        window.showLoginModal = function() {
+            document.getElementById('login-modal').classList.remove('hidden');
+        };
+
+        window.hideLoginModal = function() {
+            document.getElementById('login-modal').classList.add('hidden');
+        };
+
+        window.showSignupModal = function() {
+            document.getElementById('signup-modal').classList.remove('hidden');
+            hideLoginModal();
+        };
+
+        window.hideSignupModal = function() {
+            document.getElementById('signup-modal').classList.add('hidden');
+        };
+
+        // Mobile menu toggle
+        document.addEventListener('click', (e) => {
+            if (e.target.id === 'mobile-menu-button' || e.target.closest('#mobile-menu-button')) {
+                const menu = document.getElementById('mobile-menu');
+                menu.classList.toggle('hidden');
+            }
+            
+            // User menu toggle
+            if (e.target.id === 'user-menu-button') {
+                const userMenu = document.getElementById('user-menu');
+                userMenu.classList.toggle('hidden');
+            }
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            
+            if (mobileMenu && !mobileMenu.contains(e.target) && !mobileMenuButton.contains(e.target)) {
+                mobileMenu.classList.add('hidden');
+            }
+        });
+
+        // Make currentUser globally accessible
+        window.getCurrentUser = () => currentUser;
+
+        // Notify me function for video generator
+        window.notifyMe = function() {
+            const emailInput = document.querySelector('input[type="email"]');
+            const email = emailInput?.value?.trim();
+            
+            if (!email) {
+                showToast('Please enter your email address', 'error');
+                return;
+            }
+            
+            if (!email.includes('@')) {
+                showToast('Please enter a valid email address', 'error');
+                return;
+            }
+            
+            showToast('🎉 Thanks! We\'ll notify you when video generation is ready!', 'success');
+            emailInput.value = '';
+        };
+
+        // Auth functions
+        window.login = async function() {
+            const email = document.getElementById('login-email')?.value?.trim();
+            const password = document.getElementById('login-password')?.value || '';
+            if (!email || !password) return alert('Please enter your email and password.');
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                showToast('Logged in successfully!', 'success');
+                hideLoginModal();
+            } catch (err) {
+                showToast(err.message || 'Login failed', 'error');
+            }
+        };
+
+        window.signup = async function() {
+            const name = document.getElementById('signup-name')?.value?.trim();
+            const email = document.getElementById('signup-email')?.value?.trim();
+            const password = document.getElementById('signup-password')?.value || '';
+            const confirm = document.getElementById('signup-confirm-password')?.value || '';
+            const agreed = document.getElementById('terms')?.checked;
+
+            if (!name) return alert('Please enter your full name.');
+            if (!email) return alert('Please enter your email.');
+            if (password.length < 8) return alert('Password must be at least 8 characters.');
+            if (password !== confirm) return alert('Passwords do not match.');
+            if (!agreed) return alert('Please accept the Terms and Privacy Policy.');
+
+            try {
+                const cred = await createUserWithEmailAndPassword(auth, email, password);
+                await updateProfile(cred.user, { displayName: name });
+                
+                // Add initial credits to new user
+                try {
+                    const response = await fetch('http://127.0.0.1:5000/add-credits', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            userId: cred.user.uid,
+                            amount: 50  // Give 50 free credits to new users
+                        })
+                    });
+                    if (response.ok) {
+                        showToast('Account created successfully! You received 50 free credits!', 'success');
+                    } else {
+                        showToast('Account created successfully!', 'success');
+                    }
+                } catch (error) {
+                    console.error('Error adding initial credits:', error);
+                    showToast('Account created successfully!', 'success');
+                }
+                
+                hideSignupModal();
+            } catch (err) {
+                const msg = (err && err.code === 'auth/configuration-not-found')
+                    ? 'Email/Password auth is not enabled. In Firebase Console → Authentication → Sign-in method, enable Email/Password.'
+                    : (err && err.code === 'auth/operation-not-allowed')
+                        ? 'Email/Password provider is disabled in Firebase Console.'
+                        : (err && err.message) || 'Sign up failed';
+                showToast(msg, 'error');
+            }
+        };
+
+        window.logout = async function() {
+            try {
+                await signOut(auth);
+                // Clear cached user data
+                localStorage.removeItem('cachedUser');
+                showToast('Logged out successfully!', 'success');
+            } catch (err) {
+                showToast(err.message || 'Logout failed', 'error');
+            }
+        };
+
+        // Toast notification function
+        window.showToast = function(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+            
+            toastMessage.textContent = message;
+            
+            // Set icon and color based on type
+            if (type === 'success') {
+                toastIcon.className = 'fas fa-check-circle text-green-400';
+                toast.className = 'fixed top-4 right-4 bg-green-800 text-white px-6 py-3 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 z-50';
+            } else if (type === 'error') {
+                toastIcon.className = 'fas fa-exclamation-circle text-red-400';
+                toast.className = 'fixed top-4 right-4 bg-red-800 text-white px-6 py-3 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 z-50';
+            } else {
+                toastIcon.className = 'fas fa-info-circle text-blue-400';
+                toast.className = 'fixed top-4 right-4 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 z-50';
+            }
+            
+            // Show toast
+            setTimeout(() => {
+                toast.classList.remove('translate-x-full');
+            }, 100);
+            
+            // Hide toast after 3 seconds
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+            }, 3000);
+        };
+
+        // Navigation function
+        window.showPage = function(page) {
+            if (page === 'home') {
+                window.location.href = 'index.html';
+            } else if (page === 'image') {
+                window.location.href = 'image.html';
+            } else if (page === 'video') {
+                window.location.href = 'video.html';
+            } else if (page === 'pricing') {
+                window.location.href = 'pricing.html';
+            }
+        };
+
+        // Notify me button
+        document.addEventListener('click', function(e) {
+            if (e.target.textContent.includes('Notify Me')) {
+                e.preventDefault();
+                notifyMe();
+            }
+        });
+    </script>
+</body>
+</html>

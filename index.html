@@ -1,0 +1,1887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perseptra - AI Media Generation Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <!-- Favicon -->
+        <link rel="icon" type="image/png" sizes="16x16" href="Media/image.png?v=2">
+        <link rel="icon" type="image/png" sizes="32x32" href="Media/image.png?v=2">
+        <link rel="shortcut icon" href="Media/image.png?v=2">
+        <link rel="apple-touch-icon" sizes="180x180" href="Media/image.png?v=2">
+        <meta name="theme-color" content="#0f0f13">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f0f13;
+            color: #e2e2e2;
+            min-height: 100vh;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(90deg, #a78bfa, #c4b5fd);
+            -webkit-background-clip: text;
+            background-clip: text;
+            /* Ensure proper clipping on mobile WebKit-based browsers */
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.3);
+        }
+        
+        .nav-link:hover {
+            color: #8b5cf6;
+        }
+        
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .theme-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .slide-up {
+            animation: slideUp 0.5s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .input-field {
+            background-color: #1a1a23;
+            transition: all 0.3s ease;
+        }
+        
+        .input-field:focus {
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+        }
+        
+        .generator-container {
+            background: linear-gradient(145deg, #1a1a23, #0f0f13);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .preview-placeholder {
+            background: linear-gradient(145deg, #2a2a35, #1a1a23);
+        }
+        
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.5), transparent);
+        }
+
+        /* Showcase pop-out effects */
+        .showcase-card {
+            position: relative;
+            transform: perspective(1200px) rotateX(0deg) rotateY(0deg) translateZ(0) scale(0.94);
+            transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 700ms ease, filter 700ms ease;
+            box-shadow: 0 10px 25px -10px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+        .showcase-card::before {
+            content: "";
+            position: absolute;
+            inset: -2px;
+            border-radius: 16px;
+            background: conic-gradient(from 180deg at 50% 50%, #8b5cf6, #6366f1, transparent 60%);
+            filter: blur(16px);
+            opacity: 0;
+            transition: opacity 600ms ease;
+            pointer-events: none;
+        }
+        .showcase-card.active {
+            transform: perspective(1200px) rotateX(2deg) rotateY(-2deg) translateZ(60px) scale(1.06);
+            box-shadow: 0 55px 90px -25px rgba(0,0,0,0.7), 0 0 40px rgba(139,92,246,0.25);
+            animation: showcaseFloat 7s ease-in-out infinite;
+        }
+        .showcase-card.active::before { opacity: 0.6; }
+        @keyframes showcaseFloat {
+            0%,100% { transform: perspective(1200px) rotateX(2deg) rotateY(-2deg) translateZ(60px) scale(1.06) translateY(0px); }
+            50% { transform: perspective(1200px) rotateX(0deg) rotateY(2deg) translateZ(80px) scale(1.08) translateY(-10px); }
+        }
+
+        /* Scroll reveal for showcase */
+        .reveal-section .reveal-item {
+            opacity: 0;
+            transform: translateY(26px) scale(0.98);
+            filter: blur(2px);
+        }
+        .reveal-section.in-view .reveal-item {
+            animation: revealUp 800ms var(--delay, 0ms) cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+        @keyframes revealUp {
+            from { opacity: 0; transform: translateY(26px) scale(0.98); filter: blur(2px); }
+            to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+        }
+
+        /* Mobile/light tweaks */
+        @media (max-width: 640px) {
+            body { background-color: #14141b; }
+            /* Fallback to solid text color on mobile to avoid rare clipping bugs */
+            .gradient-text {
+                background: none !important;
+                -webkit-background-clip: initial;
+                background-clip: initial;
+                -webkit-text-fill-color: inherit;
+                color: #f3f4f6; /* near-white */
+            }
+            /* Tone down showcase animation on small screens */
+            .showcase-card { transform: none; box-shadow: 0 8px 16px -10px rgba(0,0,0,0.4); }
+            .showcase-card.active { transform: none; animation: none; }
+            .showcase-card::before { display: none; }
+            /* Reduce reveal motion */
+            .reveal-section .reveal-item { opacity: 1; transform: none; filter: none; }
+            .reveal-section.in-view .reveal-item { animation: none; }
+        }
+
+        /* Respect prefers-reduced-motion */
+        @media (prefers-reduced-motion: reduce) {
+            .showcase-card.active { animation: none; transform: none; }
+            .reveal-section .reveal-item { opacity: 1; transform: none; filter: none; }
+            .reveal-section.in-view .reveal-item { animation: none; }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Global background gradient overlay (covers entire page for a single-piece look) -->
+    <div class="fixed inset-0 -z-10 pointer-events-none bg-gradient-to-br from-purple-900/20 via-transparent to-blue-900/20"></div>
+    <!-- Navigation -->
+    <nav class="bg-gray-900/80 backdrop-blur-md fixed w-full z-50 border-b border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <span class="text-2xl font-bold gradient-text">Perseptra</span>
+                    </div>
+                    <div class="hidden md:block">
+                        <div class="ml-10 flex items-baseline space-x-4">
+                            <a href="#" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white transition duration-300" onclick="showPage('home')">Home</a>
+                            <a href="image.html" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white transition duration-300">Image Generator</a>
+                            <a href="video.html" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white transition duration-300">Video Generator</a>
+                            <a href="pricing.html" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white transition duration-300">Pricing</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="hidden md:block">
+                    <!-- Signed-out state -->
+                    <div id="auth-signed-out" class="ml-4 flex items-center md:ml-6">
+                        <button class="px-4 py-2 rounded-md text-sm font-medium text-white bg-transparent border border-gray-700 hover:bg-gray-800 transition duration-300 mr-3" onclick="showPage('login')">
+                            Login
+                        </button>
+                        <button class="btn-primary px-4 py-2 rounded-md text-sm font-medium text-white" onclick="showPage('signup')">
+                            Sign Up
+                        </button>
+                    </div>
+                    <!-- Signed-in state -->
+                    <div id="auth-signed-in" class="ml-4 items-center md:ml-6 hidden">
+                        <div class="relative">
+                            <button id="user-menu-button" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-800 transition">
+                                <span id="user-avatar" class="h-8 w-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-xs font-semibold text-white"></span>
+                                <span id="user-display-name" class="text-sm font-medium"></span>
+                                <!-- Credits Display -->
+                                <div class="flex items-center gap-1.5 px-2 py-1 bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border border-yellow-500/30 rounded-md">
+                                    <i class="fas fa-coins text-yellow-400 text-xs"></i>
+                                    <span id="nav-credits" class="text-xs font-semibold text-yellow-300">0</span>
+                                </div>
+                                <i class="fas fa-chevron-down text-xs text-gray-400 ml-1"></i>
+                            </button>
+                            <div id="user-menu" class="absolute right-0 mt-2 w-52 bg-gray-900 border border-gray-800 rounded-md shadow-xl py-1 hidden">
+                                <button class="w-full text-left px-4 py-2 text-sm hover:bg-gray-800" onclick="showPage('settings'); document.getElementById('user-menu').classList.add('hidden');">
+                                    <i class="fas fa-user-cog mr-2"></i> Settings
+                                </button>
+                                <button class="w-full text-left px-4 py-2 text-sm hover:bg-gray-800" onclick="showPage('my-content'); document.getElementById('user-menu').classList.add('hidden');">
+                                    <i class="fas fa-folder-open mr-2"></i> My Content
+                                </button>
+                                <button class="w-full text-left px-4 py-2 text-sm hover:bg-gray-800" onclick="showPage('credits'); document.getElementById('user-menu').classList.add('hidden');">
+                                    <i class="fas fa-coins mr-2"></i> Credits
+                                </button>
+                                <div class="my-1 border-t border-gray-800"></div>
+                                <button class="w-full text-left px-4 py-2 text-sm hover:bg-gray-800" onclick="logout(); document.getElementById('user-menu').classList.add('hidden');">
+                                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="-mr-2 flex md:hidden">
+                    <button type="button" id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white" aria-controls="mobile-menu" aria-expanded="false">
+                        <span class="sr-only">Open main menu</span>
+                        <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile menu -->
+        <div class="md:hidden hidden" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700" onclick="showPage('home')">Home</a>
+                <a href="image.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">Image Generator</a>
+                <a href="video.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">Video Generator</a>
+                <a href="pricing.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">Pricing</a>
+            </div>
+            <div class="pt-4 pb-3 border-t border-gray-700 px-3">
+                <!-- Signed-out (mobile) -->
+                <div id="auth-signed-out-mobile" class="mt-3 space-y-1">
+                    <button class="block w-full px-4 py-2 rounded-md text-base font-medium text-white bg-transparent border border-gray-700 hover:bg-gray-800 transition duration-300 mb-2" onclick="showPage('login')">
+                        Login
+                    </button>
+                    <button class="btn-primary block w-full px-4 py-2 rounded-md text-base font-medium text-white" onclick="showPage('signup')">
+                        Sign Up
+                    </button>
+                </div>
+                <!-- Signed-in (mobile) -->
+                <div id="auth-signed-in-mobile" class="mt-3 space-y-3 hidden">
+                    <div class="flex items-center gap-3 px-2">
+                        <span id="user-avatar-mobile" class="h-9 w-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-sm font-semibold text-white"></span>
+                        <div class="flex-1">
+                            <p id="user-display-name-mobile" class="font-medium"></p>
+                            <p class="text-xs text-gray-400">Signed in</p>
+                        </div>
+                        <!-- Mobile Credits Display -->
+                        <div class="flex items-center gap-1.5 px-2 py-1 bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border border-yellow-500/30 rounded-md">
+                            <i class="fas fa-coins text-yellow-400 text-xs"></i>
+                            <span id="nav-credits-mobile" class="text-xs font-semibold text-yellow-300">0</span>
+                        </div>
+                    </div>
+                    <button class="block w-full px-4 py-2 rounded-md text-base font-medium bg-gray-800 hover:bg-gray-700 transition duration-300" onclick="logout()">
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Content -->
+    <main class="pt-16 pb-12">
+        <!-- Home Page -->
+        <div id="home-page" class="page fade-in">
+            <!-- Hero Section with Video Generator -->
+            <section class="relative overflow-hidden">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                        <div class="text-center lg:text-left">
+                            <h1 class="text-4xl md:text-6xl font-bold mb-6 slide-up">
+                                <span class="gradient-text">Create Videos</span> with AI in Seconds
+                            </h1>
+                            <p class="text-xl md:text-2xl text-gray-400 mb-10 slide-up">
+                                Turn your ideas into stunning 8-second videos with our powerful AI video generator.
+                            </p>
+                            <div class="flex flex-col sm:flex-row gap-4 slide-up">
+                                <button 
+                                class="btn-primary px-8 py-4 rounded-lg text-lg font-semibold text-white hover:shadow-lg transition-all duration-300" 
+                                onclick="window.location.href='image.html'">
+                                <i class="fas fa-play-circle mr-2"></i> Generate image Now
+                              </button>
+                              
+                            </div>
+                        </div>
+                        <div class="preview-placeholder rounded-2xl overflow-hidden aspect-video flex items-center justify-center border-2 border-dashed border-gray-700 relative">
+                            <video class="w-full h-full object-cover" autoplay loop muted playsinline>
+                                <source src="Media/video.mp4" type="video/mp4" />
+                                Your browser does not support the video tag.
+                            </video>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <i class="fas fa-play text-6xl text-purple-500 opacity-30"></i>
+                            </div>
+                            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
+                                <p class="text-white text-lg font-medium">"superman hovering over metro city"</p>
+                                <p class="text-gray-400 text-sm">Example AI-generated video</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="absolute inset-0 -z-10 pointer-events-none bg-gradient-to-br from-purple-900/20 via-transparent to-blue-900/20"></div>
+            </section>
+
+            <!-- Daily Credit Claim Popup -->
+            <div id="daily-claim-popup" class="fixed top-20 right-4 z-[9999] transform transition-all duration-500 ease-out opacity-100 translate-x-0 pointer-events-auto">
+                <div class="bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-xl border border-purple-500/30 rounded-2xl p-6 shadow-2xl max-w-sm pointer-events-auto">
+                    <!-- Close button -->
+                    <button onclick="hideDailyClaimPopup()" class="absolute top-3 right-3 text-gray-400 hover:text-white transition-colors">
+                        <i class="fas fa-times text-lg"></i>
+                    </button>
+                    
+                    <!-- Content -->
+                    <div class="text-center">
+                        <div class="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-xl mb-4">
+                            <i class="fas fa-gift text-lg text-gray-900"></i>
+                        </div>
+                        <h3 class="text-lg font-bold mb-2">Daily Gift!</h3>
+                        <p class="text-sm text-gray-300 mb-4">Claim your daily 15 free credits</p>
+                        
+                        <!-- Signed-out state -->
+                        <div id="daily-claim-signed-out" class="space-y-3">
+                            <p class="text-xs text-gray-400">Sign in to claim</p>
+                            <div class="flex gap-2">
+                                <button class="flex-1 btn-primary px-3 py-2 rounded-lg text-sm font-medium" onclick="showPage('login'); hideDailyClaimPopup();">
+                                    <i class="fas fa-sign-in-alt mr-1"></i>Sign In
+                                </button>
+                                <button class="flex-1 px-3 py-2 rounded-lg text-sm font-medium bg-gray-800 hover:bg-gray-700 transition duration-300" onclick="showPage('signup'); hideDailyClaimPopup();">
+                                    <i class="fas fa-user-plus mr-1"></i>Sign Up
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Signed-in state -->
+                        <div id="daily-claim-signed-in" class="hidden">
+                            <button id="claim-daily-btn" class="w-full btn-primary px-4 py-3 rounded-lg font-semibold transform hover:scale-105 transition-all duration-300" onclick="claimDailyCredits()">
+                                <i class="fas fa-gift mr-2"></i>Claim 15 Credits
+                            </button>
+                            <p class="text-xs text-gray-400 mt-2">Available once per day</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Video Generator CTA -->
+            <section class="relative overflow-hidden py-16">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
+                    <!-- External left column (desktop only) -->
+                    <aside class="hidden lg:flex flex-col gap-4">
+                        <div class="rounded-xl border border-gray-800 bg-gray-900/40 p-4 flex items-start gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-purple-900/30 flex items-center justify-center border border-purple-500/20">
+                                <i class="fas fa-bolt text-purple-400"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium">Lightning fast</p>
+                                <p class="text-gray-400 text-sm">Generate results in seconds</p>
+                            </div>
+                        </div>
+                        <div class="rounded-xl border border-gray-800 bg-gray-900/40 p-4 flex items-start gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-blue-900/30 flex items-center justify-center border border-blue-500/20">
+                                <i class="fas fa-film text-blue-400"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium">Cinematic styles</p>
+                                <p class="text-gray-400 text-sm">Anime to photorealistic looks</p>
+                            </div>
+                        </div>
+                        <div class="rounded-xl border border-gray-800 bg-gray-900/40 p-4 flex items-start gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-green-900/30 flex items-center justify-center border border-green-500/20">
+                                <i class="fas fa-shield-alt text-green-400"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium">Commercial-ready</p>
+                                <p class="text-gray-400 text-sm">High-quality output for projects</p>
+                            </div>
+                        </div>
+                    </aside>
+
+                    <!-- Center card (CTA container) -->
+                    <div class="lg:col-span-3">
+                        <div class="bg-[#0f0f13] rounded-3xl border border-gray-800 p-6 md:p-8 shadow-2xl">
+                            <div class="text-center mb-8">
+                                <h2 class="text-2xl md:text-3xl font-bold mb-4">Ready to Create Your First AI Video?</h2>
+                                <p class="text-gray-400 max-w-2xl mx-auto">Transform your ideas into stunning 8-second videos with our powerful AI technology</p>
+                            </div>
+                            <div class="max-w-3xl mx-auto">
+                                <div class="relative mb-6">
+                                    <textarea class="w-full input-field rounded-xl p-5 h-32 text-white border border-gray-700 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300" placeholder="Describe the video you want to create..."></textarea>
+                                    <div class="absolute bottom-3 right-3 text-xs text-gray-500">Press Enter to generate</div>
+                                </div>
+                                <button class="btn-primary w-full py-4 rounded-xl text-lg font-semibold text-white hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center" onclick="showPage('image-generator')">
+                                    <i class="fas fa-sparkles mr-3"></i> Generate Video Now
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- External right column (desktop only) -->
+                    <aside class="hidden lg:flex flex-col gap-4">
+                        <div class="rounded-xl border border-gray-800 bg-gray-900/40 p-4">
+                            <p class="text-3xl font-bold">1080P</p>
+                            <p class="text-gray-400 text-sm">Cinematic quality</p>
+                        </div>
+                        <div class="rounded-xl border border-gray-800 bg-gray-900/40 p-4">
+                            <p class="text-3xl font-bold">100k+</p>
+                            <p class="text-gray-400 text-sm">Videos generated</p>
+                        </div>
+                        <div class="rounded-xl border border-gray-800 bg-gray-900/40 p-4">
+                            <p class="text-3xl font-bold">30+</p>
+                            <p class="text-gray-400 text-sm">Art styles</p>
+                        </div>
+                    </aside>
+                    </div>
+                </div>
+                
+            </section>
+
+            <!-- Features Section -->
+            <section class="relative overflow-hidden pb-20">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center mb-16">
+                        <h2 class="text-3xl md:text-4xl font-bold mb-4">Unleash Your Creativity</h2>
+                        <p class="text-gray-400 max-w-2xl mx-auto">Experience the future of content creation with our cutting-edge AI tools</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="bg-gray-900/50 rounded-xl p-8 border border-gray-800 transition duration-300 hover:border-purple-500/30 hover:bg-gray-900/70">
+                            <div class="w-14 h-14 bg-purple-900/30 rounded-lg flex items-center justify-center mb-6">
+                                <i class="fas fa-video text-purple-500 text-2xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-3">AI Video Generation</h3>
+                            <p class="text-gray-400">Create high-quality 8-second videos from text with multiple cinematic styles and resolutions up to 4K.</p>
+                        </div>
+                        
+                        <div class="bg-gray-900/50 rounded-xl p-8 border border-gray-800 transition duration-300 hover:border-blue-500/30 hover:bg-gray-900/70">
+                            <div class="w-14 h-14 bg-blue-900/30 rounded-lg flex items-center justify-center mb-6">
+                                <i class="fas fa-image text-blue-500 text-2xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-3">AI Image Creation</h3>
+                            <p class="text-gray-400">Generate stunning, high-resolution images in any artistic style with our advanced AI models.</p>
+                        </div>
+                        
+                        <div class="bg-gray-900/50 rounded-xl p-8 border border-gray-800 transition duration-300 hover:border-green-500/30 hover:bg-gray-900/70">
+                            <div class="w-14 h-14 bg-green-900/30 rounded-lg flex items-center justify-center mb-6">
+                                <i class="fas fa-bolt text-green-500 text-2xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-3">Lightning Speed</h3>
+                            <p class="text-gray-400">Get your media generated in seconds with our optimized AI infrastructure and priority processing.</p>
+                        </div>
+                    </div>
+                </div>
+                
+            </section>
+
+            <!-- AI Video Showcase (Slideshow) -->
+            <section id="video-showcase" class="relative overflow-hidden reveal-section w-full pb-20">
+                <div class="reveal-item flex items-center justify-between mb-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style="--delay: 0ms;">
+                    <div>
+                        <h3 class="text-2xl md:text-3xl font-bold">AI Video Showcase</h3>
+                        <p class="text-gray-400">Explore more AI‑generated videos</p>
+                    </div>
+                </div>
+
+                <div id="video-showcase-scroller" class="reveal-item w-full overflow-x-auto snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] bg-gradient-to-b from-transparent via-gray-900/20 to-transparent py-2" style="-webkit-overflow-scrolling:touch; scroll-behavior:smooth; --delay: 120ms;">
+                    <div id="video-showcase-track" class="flex gap-6 pr-6 pl-6 [&::-webkit-scrollbar]:hidden">
+                        <!-- Slide 1 -->
+                        <div class="snap-start shrink-0 w-[90%] sm:w-[60%] md:w-[50%] lg:w-[40%] xl:w-[33%] 2xl:w-[28%]">
+                            <div class="showcase-card relative rounded-2xl overflow-hidden border border-gray-800 bg-gray-900/40 aspect-video">
+                                <video class="absolute inset-0 w-full h-full object-cover" autoplay loop muted playsinline>
+                                    <source src="Media/video1.mp4" type="video/mp4" />
+                                </video>
+                                <div class="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
+                                    <p class="text-sm text-gray-300">City skyline timelapse</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Slide 2 -->
+                        <div class="snap-start shrink-0 w-[90%] sm:w-[60%] md:w-[50%] lg:w-[40%] xl:w-[33%] 2xl:w-[28%]">
+                            <div class="showcase-card relative rounded-2xl overflow-hidden border border-gray-800 bg-gray-900/40 aspect-video">
+                                <video class="absolute inset-0 w-full h-full object-cover" autoplay loop muted playsinline>
+                                    <source src="Media/video2.mp4" type="video/mp4" />
+                                </video>
+                                <div class="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
+                                    <p class="text-sm text-gray-300">Abstract neon landscapes</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Slide 3 -->
+                        <div class="snap-start shrink-0 w-[90%] sm:w-[60%] md:w-[50%] lg:w-[40%] xl:w-[33%] 2xl:w-[28%]">
+                            <div class="showcase-card relative rounded-2xl overflow-hidden border border-gray-800 bg-gray-900/40 aspect-video">
+                                <video class="absolute inset-0 w-full h-full object-cover" autoplay loop muted playsinline>
+                                    <source src="Media/video3.mp4" type="video/mp4" />
+                                </video>
+                                <div class="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
+                                    <p class="text-sm text-gray-300">Cinematic character close‑up</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Slide 4 -->
+                        <div class="snap-start shrink-0 w-[90%] sm:w-[60%] md:w-[50%] lg:w-[40%] xl:w-[33%] 2xl:w-[28%]">
+                            <div class="showcase-card relative rounded-2xl overflow-hidden border border-gray-800 bg-gray-900/40 aspect-video">
+                                <video class="absolute inset-0 w-full h-full object-cover" autoplay loop muted playsinline>
+                                    <source src="Media/video4.mp4" type="video/mp4" />
+                                </video>
+                                <div class="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
+                                    <p class="text-sm text-gray-300">Sci‑fi corridor flythrough</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Slide 5 -->
+                        <div class="snap-start shrink-0 w-[90%] sm:w-[60%] md:w-[50%] lg:w-[40%] xl:w-[33%] 2xl:w-[28%]">
+                            <div class="showcase-card relative rounded-2xl overflow-hidden border border-gray-800 bg-gray-900/40 aspect-video">
+                                <video class="absolute inset-0 w-full h-full object-cover" autoplay loop muted playsinline>
+                                    <source src="Media/video5.mp4" type="video/mp4" />
+                                </video>
+                                <div class="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
+                                    <p class="text-sm text-gray-300">Fantasy forest reveal</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Slide 6 -->
+                        <div class="snap-start shrink-0 w-[90%] sm:w-[60%] md:w-[50%] lg:w-[40%] xl:w-[33%] 2xl:w-[28%]">
+                            <div class="showcase-card relative rounded-2xl overflow-hidden border border-gray-800 bg-gray-900/40 aspect-video">
+                                <video class="absolute inset-0 w-full h-full object-cover" autoplay loop muted playsinline>
+                                    <source src="Media/video6.mp4" type="video/mp4" />
+                                </video>
+                                <div class="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
+                                    <p class="text-sm text-gray-300">Aerial beach flyover</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                
+                
+            </section>
+
+
+                    </div>
+                    
+
+
+
+
+
+
+        <!-- Settings Page -->
+        <div id="settings-page" class="page hidden max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div class="mb-8 flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold">Account Settings</h1>
+                    <p class="text-gray-400">Manage your profile and account preferences</p>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Profile card -->
+                <div class="lg:col-span-1 bg-gray-900/60 rounded-2xl p-6 border border-gray-800">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="relative h-16 w-16 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-xl font-semibold" aria-label="User avatar">
+                            <span id="settings-initials">U</span>
+                        </div>
+                        <div>
+                            <div id="settings-profile-name" class="text-lg font-semibold">—</div>
+                            <div id="settings-profile-email" class="text-gray-400 text-sm">—</div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 text-sm">
+                        <div class="rounded-xl border border-gray-800 bg-gray-900/50 p-3">
+                            <div class="text-gray-400">Credits</div>
+                            <div id="settings-credits" class="text-xl font-bold">0</div>
+                        </div>
+                        <div class="rounded-xl border border-gray-800 bg-gray-900/50 p-3">
+                            <div class="text-gray-400">Items</div>
+                            <div id="settings-items" class="text-xl font-bold">0</div>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <button class="w-full btn-primary rounded-lg py-2.5" onclick="showPage('credits')"><i class="fas fa-coins mr-2"></i>Manage Credits</button>
+                    </div>
+                </div>
+
+                <!-- Form card -->
+                <div class="lg:col-span-2 bg-gray-900/60 rounded-2xl p-6 md:p-8 border border-gray-800">
+                    <h2 class="text-xl font-semibold mb-4">Profile</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm mb-1">Display Name</label>
+                            <input id="settings-name" type="text" class="w-full input-field rounded-lg px-4 py-3 text-white border border-gray-700 focus:outline-none focus:border-purple-500" placeholder="Your name">
+                        </div>
+                        <div>
+                            <label class="block text-sm mb-1">Email</label>
+                            <input id="settings-email" type="email" class="w-full input-field rounded-lg px-4 py-3 text-white border border-gray-700" disabled>
+                            <p class="text-xs text-gray-500 mt-1">Email change requires reauthentication.</p>
+                        </div>
+                    </div>
+                    <div class="mt-6 flex gap-3">
+                        <button id="settings-save" class="btn-primary px-5 py-3 rounded-lg text-white font-medium">Save Changes</button>
+                        <button class="px-5 py-3 rounded-lg font-medium bg-gray-800 hover:bg-gray-700" onclick="showPage('home')">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Content Page -->
+        <div id="my-content-page" class="page hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div class="mb-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-3xl font-bold">My Content</h1>
+                        <p class="text-gray-400">All your generated videos and images</p>
+                    </div>
+                    <div class="flex gap-2 bg-gray-900/60 border border-gray-800 rounded-xl p-1">
+                        <button data-filter="all" class="content-filter px-3 py-1.5 rounded-lg text-sm bg-gray-800">All</button>
+                        <button data-filter="video" class="content-filter px-3 py-1.5 rounded-lg text-sm">Videos</button>
+                        <button data-filter="image" class="content-filter px-3 py-1.5 rounded-lg text-sm">Images</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="my-content-empty" class="hidden text-center text-gray-400 py-24">
+                <div class="inline-flex items-center justify-center h-16 w-16 rounded-full bg-purple-500/10 text-purple-400 mb-4"><i class="fas fa-folder-open"></i></div>
+                <p class="mb-2">No content yet</p>
+                <button class="btn-primary px-4 py-2 rounded-lg" onclick="showPage('video-generator')">Generate your first item</button>
+            </div>
+            <div id="my-content-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
+        </div>
+
+        <!-- Credits Page -->
+        <div id="credits-page" class="page hidden max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold">My Credits</h1>
+                <p class="text-gray-400">Track and manage your balance</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="md:col-span-2 bg-gray-900/60 rounded-2xl p-6 md:p-8 border border-gray-800">
+                    <div class="flex items-center gap-4">
+                        <div class="h-14 w-14 rounded-xl bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center text-gray-900">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <div>
+                            <div class="text-sm text-gray-400">Available credits</div>
+                            <div id="credits-amount" class="text-4xl font-extrabold">0</div>
+                        </div>
+                    </div>
+                    <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="rounded-xl border border-gray-800 bg-gray-900/50 p-4">
+                            <div class="text-sm text-gray-400 mb-1">Cost per image</div>
+                            <div class="text-lg font-semibold">1 credit</div>
+                        </div>
+                        <div class="rounded-xl border border-gray-800 bg-gray-900/50 p-4">
+                            <div class="text-sm text-gray-400 mb-1">Cost per video</div>
+                            <div class="text-lg font-semibold">80 credits</div>
+                        </div>
+                    </div>
+                    <div class="mt-6 flex gap-3">
+                        <button class="btn-primary px-6 py-3 rounded-lg" onclick="showPage('credits')">Buy more credits</button>
+                        <button class="px-6 py-3 rounded-lg bg-gray-800 hover:bg-gray-700 transition duration-300" onclick="addTestCredits()">Add Test Credits</button>
+                        <button class="px-6 py-3 rounded-lg bg-purple-800 hover:bg-purple-700 transition duration-300" onclick="showDailyClaimPopup()">Test Popup</button>
+                    </div>
+                </div>
+                <div class="bg-gray-900/60 rounded-2xl p-6 border border-gray-800">
+                    <h3 class="font-semibold mb-3">Tips</h3>
+                    <ul class="text-sm text-gray-400 space-y-2">
+                        <li>Use concise prompts to get faster results.</li>
+                        <li>Try different styles to find your look.</li>
+                        <li>Buy larger packs for better value.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Login Page -->
+        <div id="login-page" class="page hidden max-w-md mx-auto px-4 sm:px-6 lg:px-8 py-20">
+            <div class="text-center mb-10">
+                <h1 class="text-3xl font-bold mb-2">Welcome Back</h1>
+                <p class="text-gray-400">Login to access your AI media creations</p>
+            </div>
+            
+            <div class="bg-gray-900/50 rounded-xl p-8 border border-gray-800">
+                <form>
+                    <div class="mb-6">
+                        <label for="login-email" class="block text-sm font-medium mb-2">Email Address</label>
+                        <input type="email" id="login-email" class="w-full input-field rounded-lg px-4 py-3 text-white border border-gray-700 focus:outline-none focus:border-purple-500" placeholder="you@example.com">
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label for="login-password" class="block text-sm font-medium mb-2">Password</label>
+                        <input type="password" id="login-password" class="w-full input-field rounded-lg px-4 py-3 text-white border border-gray-700 focus:outline-none focus:border-purple-500" placeholder="••••••••">
+                    </div>
+                    
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center">
+                            <input id="remember-me" type="checkbox" class="h-4 w-4 rounded border-gray-700 bg-gray-800 text-purple-600 focus:ring-purple-500">
+                            <label for="remember-me" class="ml-2 block text-sm text-gray-400">Remember me</label>
+                        </div>
+                        <a href="#" class="text-sm text-purple-400 hover:text-purple-300">Forgot password?</a>
+                    </div>
+                    
+                    <button type="button" class="btn-primary w-full py-3 rounded-lg font-medium text-white mb-4" onclick="login()">
+                        Login
+                    </button>
+                    
+                    <button type="button" class="w-full py-3 rounded-lg font-medium text-white bg-gray-800 hover:bg-gray-700 transition duration-300 flex items-center justify-center" onclick="loginWithGoogle()">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google logo" class="h-5 w-5 mr-2">
+                        Login with Google
+                    </button>
+                </form>
+                
+                <div class="divider my-6"></div>
+                
+                <p class="text-sm text-center text-gray-400">
+                    Don't have an account? 
+                    <a href="#" class="text-purple-400 hover:text-purple-300 font-medium" onclick="showPage('signup')">Sign up</a>
+                </p>
+            </div>
+        </div>
+
+        <!-- Sign Up Page -->
+        <div id="signup-page" class="page hidden max-w-md mx-auto px-4 sm:px-6 lg:px-8 py-20">
+            <div class="text-center mb-10">
+                <h1 class="text-3xl font-bold mb-2">Create Your Account</h1>
+                <p class="text-gray-400">Start generating AI media today</p>
+            </div>
+            
+            <div class="bg-gray-900/50 rounded-xl p-8 border border-gray-800">
+                <form>
+                    <div class="mb-6">
+                        <label for="signup-name" class="block text-sm font-medium mb-2">Full Name</label>
+                        <input type="text" id="signup-name" class="w-full input-field rounded-lg px-4 py-3 text-white border border-gray-700 focus:outline-none focus:border-purple-500" placeholder="John Doe">
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label for="signup-email" class="block text-sm font-medium mb-2">Email Address</label>
+                        <input type="email" id="signup-email" class="w-full input-field rounded-lg px-4 py-3 text-white border border-gray-700 focus:outline-none focus:border-purple-500" placeholder="you@example.com">
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label for="signup-password" class="block text-sm font-medium mb-2">Password</label>
+                        <input type="password" id="signup-password" class="w-full input-field rounded-lg px-4 py-3 text-white border border-gray-700 focus:outline-none focus:border-purple-500" placeholder="••••••••">
+                        <p class="text-xs text-gray-500 mt-2">Minimum 8 characters with at least one number</p>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label for="signup-confirm-password" class="block text-sm font-medium mb-2">Confirm Password</label>
+                        <input type="password" id="signup-confirm-password" class="w-full input-field rounded-lg px-4 py-3 text-white border border-gray-700 focus:outline-none focus:border-purple-500" placeholder="••••••••">
+                    </div>
+                    
+                    <div class="flex items-center mb-6">
+                        <input id="terms" type="checkbox" class="h-4 w-4 rounded border-gray-700 bg-gray-800 text-purple-600 focus:ring-purple-500">
+                        <label for="terms" class="ml-2 block text-sm text-gray-400">
+                            I agree to the 
+                            <a href="#" class="text-purple-400 hover:text-purple-300">Terms of Service</a> 
+                            and 
+                            <a href="#" class="text-purple-400 hover:text-purple-300">Privacy Policy</a>
+                        </label>
+                    </div>
+                    
+                    <button type="button" class="btn-primary w-full py-3 rounded-lg font-medium text-white mb-4" onclick="signup()">
+                        Create Account
+                    </button>
+                    
+                    <button type="button" class="w-full py-3 rounded-lg font-medium text-white bg-gray-800 hover:bg-gray-700 transition duration-300 flex items-center justify-center" onclick="signupWithGoogle()">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google logo" class="h-5 w-5 mr-2">
+                        Sign up with Google
+                    </button>
+                </form>
+                
+                <div class="divider my-6"></div>
+                
+                <p class="text-sm text-center text-gray-400">
+                    Already have an account? 
+                    <a href="#" class="text-purple-400 hover:text-purple-300 font-medium" onclick="showPage('login')">Login</a>
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <span class="text-2xl font-bold gradient-text">Perseptra</span>
+                    <p class="text-gray-400 mt-4">The most advanced AI media generation platform for creators.</p>
+                    <div class="flex space-x-4 mt-6">
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fab fa-discord"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">Product</h3>
+                    <ul class="space-y-3">
+                        <li><a href="/image" class="text-gray-400 hover:text-white">Image Generator</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white" onclick="showPage('video-generator')">Video Generator</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white" onclick="showPage('pricing')">Pricing</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">Company</h3>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-400 hover:text-white">About</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Blog</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Careers</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">Legal</h3>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Privacy Policy</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Terms of Service</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Cookie Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="mt-12 pt-8 border-t border-gray-800">
+                <p class="text-gray-400 text-sm text-center">&copy; 2023 Perseptra. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const menu = document.getElementById('mobile-menu');
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                menu.classList.add('block');
+            } else {
+                menu.classList.remove('block');
+                menu.classList.add('hidden');
+            }
+        });
+
+        // User menu toggle (desktop)
+        document.addEventListener('click', (e) => {
+            const btn = document.getElementById('user-menu-button');
+            const menu = document.getElementById('user-menu');
+            if (!btn || !menu) return;
+            if (btn.contains(e.target)) {
+                menu.classList.toggle('hidden');
+            } else if (!menu.contains(e.target)) {
+                menu.classList.add('hidden');
+            }
+        });
+
+        // Content filter buttons
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest('.content-filter');
+            if (!btn) return;
+            const filter = btn.getAttribute('data-filter');
+            const grid = document.getElementById('my-content-grid');
+            if (!grid) return;
+            document.querySelectorAll('.content-filter').forEach(b => b.classList.remove('bg-gray-800'));
+            btn.classList.add('bg-gray-800');
+            Array.from(grid.children).forEach((card) => {
+                if (filter === 'all') {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.toggle('hidden', card.dataset.type !== filter);
+                }
+            });
+        });
+
+        // Page navigation
+        function showPage(pageId) {
+            console.log('showPage called with:', pageId);
+            
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.add('hidden');
+                page.classList.remove('fade-in');
+            });
+            
+            // Show selected page
+            const page = document.getElementById(`${pageId}-page`);
+            console.log('Looking for page with ID:', `${pageId}-page`);
+            console.log('Found page:', page);
+            
+            if (page) {
+                page.classList.remove('hidden');
+                setTimeout(() => {
+                    page.classList.add('fade-in');
+                }, 10);
+            } else {
+                console.error('Page not found:', `${pageId}-page`);
+            }
+            
+            // Close mobile menu if open
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenu) {
+                mobileMenu.classList.remove('block');
+                mobileMenu.classList.add('hidden');
+            }
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+
+        // Theme selection
+        function selectTheme(element, theme) {
+            document.querySelectorAll('.theme-card').forEach(card => {
+                card.classList.remove('border-purple-500');
+                card.classList.add('border-gray-700');
+            });
+            
+            element.classList.remove('border-gray-700');
+            element.classList.add('border-purple-500');
+            
+            // Store selected theme (could be used in generation)
+            console.log(`Selected theme: ${theme}`);
+        }
+
+        // Character counters
+        document.addEventListener('DOMContentLoaded', function() {
+            const videoPrompt = document.getElementById('video-prompt');
+            const imagePrompt = document.getElementById('image-prompt');
+            
+            if (videoPrompt) {
+                videoPrompt.addEventListener('input', function() {
+                    const count = this.value.length;
+                    const counter = document.getElementById('video-prompt-count');
+                    if (counter) counter.textContent = `${count}/500`;
+                });
+            }
+            
+            if (imagePrompt) {
+                imagePrompt.addEventListener('input', function() {
+                    const count = this.value.length;
+                    const counter = document.getElementById('image-prompt-count');
+                    if (counter) counter.textContent = `${count}/500`;
+                });
+            }
+        });
+
+        // Generate video function
+        function generateVideo() {
+            const prompt = document.getElementById('video-prompt').value;
+            if (!prompt || prompt.length < 20) {
+                alert('Please enter a prompt with at least 20 characters');
+                return;
+            }
+            
+            const generateBtn = document.getElementById('generate-video-btn');
+            const originalText = generateBtn.innerHTML;
+            
+            // Show loading state
+            generateBtn.disabled = true;
+            generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Generating...';
+            
+            // Simulate generation (in a real app, this would be an API call)
+            setTimeout(() => {
+                // Show result
+                document.getElementById('video-preview-container').innerHTML = `
+                    <video class="w-full h-full" controls autoplay>
+                        <source src="https://example.com/sample-video.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                `;
+                document.getElementById('video-result').classList.remove('hidden');
+                
+                // Reset button
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = originalText;
+            }, 3000);
+        }
+
+        // Generate image function
+        function generateImage() {
+            console.log('generateImage function called');
+            const prompt = document.getElementById('image-prompt').value;
+            console.log('Prompt:', prompt);
+            
+            if (!prompt || prompt.length < 10) {
+                alert('Please enter a prompt with at least 10 characters');
+                return;
+            }
+            
+            // Check if user is logged in
+            if (!window.getCurrentUser()) {
+                alert('Please log in to generate images');
+                return;
+            }
+            
+            // Check if user has enough credits
+            const currentCredits = parseInt(document.getElementById('nav-credits')?.textContent || '0');
+            if (currentCredits < 1) {
+                alert('You need at least 1 credit to generate an image. Please purchase more credits.');
+                return;
+            }
+            
+            const generateBtn = document.getElementById('generate-image-btn');
+            const originalText = generateBtn.innerHTML;
+            
+            // Show loading state
+            generateBtn.disabled = true;
+            generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Generating...';
+            
+            console.log('Making API call to /generate');
+            
+            // Make API call to Flask server
+            fetch('/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    prompt: prompt,
+                    userId: window.getCurrentUser().uid
+                })
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Response data:', data);
+                if (data.success) {
+                    // Show generated image
+                    const previewContainer = document.getElementById('image-preview-container');
+                    console.log('Preview container:', previewContainer);
+                    previewContainer.innerHTML = `
+                        <img src="${data.image}" alt="Generated image" class="w-full h-full object-cover">
+                    `;
+                    document.getElementById('image-result').classList.remove('hidden');
+                    console.log('Image displayed successfully');
+                    
+                    // Update credits display and localStorage
+                    if (data.remainingCredits !== undefined) {
+                        const navCredits = document.getElementById('nav-credits');
+                        const navCreditsMobile = document.getElementById('nav-credits-mobile');
+                        const creditsAmount = document.getElementById('credits-amount');
+                        const settingsCredits = document.getElementById('settings-credits');
+                        
+                        if (navCredits) navCredits.textContent = String(data.remainingCredits);
+                        if (navCreditsMobile) navCreditsMobile.textContent = String(data.remainingCredits);
+                        if (creditsAmount) creditsAmount.textContent = String(data.remainingCredits);
+                        if (settingsCredits) settingsCredits.textContent = String(data.remainingCredits);
+                        
+                        console.log(`Credits deducted from Firebase. New balance: ${data.remainingCredits}`);
+                    }
+                } else {
+                    console.error('API error:', data.error);
+                    alert(data.error || 'Error generating image');
+                }
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+                alert('Error generating image. Please try again. Error: ' + error.message);
+            })
+            .finally(() => {
+                // Reset button
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = originalText;
+            });
+        }
+
+        // Showcase slider controls
+        function slideShowcase(direction) {
+            const scroller = document.getElementById('video-showcase-scroller');
+            if (!scroller) return;
+            const item = scroller.querySelector('div > div');
+            const scrollAmount = item ? item.getBoundingClientRect().width + 24 : 400; // 24px ~ gap
+            scroller.scrollBy({ left: direction === 'next' ? scrollAmount : -scrollAmount, behavior: 'smooth' });
+        }
+
+        // Showcase autoplay + active card highlight
+        (function initShowcaseAutoplay(){
+            const scroller = document.getElementById('video-showcase-scroller');
+            if (!scroller) return;
+            const track = document.getElementById('video-showcase-track');
+            const ANIM_MS = 450; // slightly faster to reduce jank
+            const INTERVAL_MS = 3500; // slower cycle for smoother feel
+            const getCards = () => Array.from(track.querySelectorAll('.showcase-card'));
+            const getItemWidth = () => {
+                const firstItem = track.children[0];
+                if (!firstItem) return 0;
+                const rect = firstItem.getBoundingClientRect();
+                return rect.width + 24; // include gap
+            };
+            const setActive = () => {
+                const cards = getCards();
+                cards.forEach((c, i) => c.classList.toggle('active', i === 0));
+            };
+            const step = () => {
+                const width = getItemWidth();
+                // Move view to the left
+                scroller.scrollBy({ left: width, behavior: 'smooth' });
+                // After scroll completes, recycle the first slide to the end and correct scroll offset
+                setTimeout(() => {
+                    const first = track.children[0];
+                    if (first) {
+                        track.appendChild(first);
+                        scroller.scrollLeft -= width;
+                    }
+                    setActive();
+                }, ANIM_MS);
+            };
+            setActive();
+            let timer = setInterval(step, INTERVAL_MS);
+            // Pause on hover/focus for better UX
+            scroller.addEventListener('mouseenter', () => clearInterval(timer));
+            scroller.addEventListener('mouseleave', () => { timer = setInterval(step, INTERVAL_MS); });
+            scroller.addEventListener('focusin', () => clearInterval(timer));
+            scroller.addEventListener('focusout', () => { timer = setInterval(step, INTERVAL_MS); });
+            // Disable autoplay on small screens to avoid perceived glitches
+            const mq = window.matchMedia('(max-width: 640px)');
+            const updateAutoplay = () => {
+                clearInterval(timer);
+                if (!mq.matches) timer = setInterval(step, INTERVAL_MS);
+            };
+            mq.addEventListener ? mq.addEventListener('change', updateAutoplay) : mq.addListener(updateAutoplay);
+            updateAutoplay();
+        })();
+
+        // Reveal on scroll: uses IntersectionObserver to add 'in-view'
+        (function initRevealOnScroll(){
+            const section = document.getElementById('video-showcase');
+            if (!section || !('IntersectionObserver' in window)) return;
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        section.classList.add('in-view');
+                        observer.unobserve(section);
+                    }
+                });
+            }, { root: null, threshold: 0.2 });
+            observer.observe(section);
+        })();
+
+        // FAQ toggle
+        function toggleFAQ(button) {
+            const answer = button.nextElementSibling;
+            const icon = button.querySelector('i');
+            
+            if (answer.classList.contains('hidden')) {
+                answer.classList.remove('hidden');
+                icon.classList.add('rotate-180');
+            } else {
+                answer.classList.add('hidden');
+                icon.classList.remove('rotate-180');
+            }
+        }
+
+        // Auth functions (simulated)
+        function login() {
+            alert('Login functionality would be implemented here');
+        }
+        
+        function loginWithGoogle() {
+            alert('Google login would be implemented here');
+        }
+        
+        function signup() {
+            alert('Sign up functionality would be implemented here');
+        }
+        
+        function signupWithGoogle() {
+            alert('Google sign up would be implemented here');
+        }
+
+        // Initialize the home page
+        document.addEventListener('DOMContentLoaded', function() {
+            showPage('home');
+            
+            // Test if generateImage function is accessible
+            console.log('generateImage function available:', typeof generateImage);
+            console.log('showPage function available:', typeof showPage);
+            
+            // Add event listener for image generation button
+            const generateImageBtn = document.getElementById('generate-image-btn');
+            if (generateImageBtn) {
+                console.log('Image generation button found, adding event listener');
+                generateImageBtn.addEventListener('click', function() {
+                    console.log('Image generation button clicked');
+                    generateImage();
+                });
+            } else {
+                console.error('Image generation button not found');
+            }
+        });
+    </script>
+
+    <!-- Toast container -->
+    <div id="toast-container" class="fixed top-4 right-4 z-[9999] flex flex-col gap-3"></div>
+
+    <script type="module">
+        // Firebase SDKs (modular) via CDN
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+        import { getAnalytics, isSupported as analyticsIsSupported } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js';
+        import {
+            getAuth,
+            createUserWithEmailAndPassword,
+            signInWithEmailAndPassword,
+            GoogleAuthProvider,
+            signInWithPopup,
+            signInWithRedirect,
+            getRedirectResult,
+            updateProfile,
+            onAuthStateChanged,
+            setPersistence,
+            browserLocalPersistence,
+            signOut
+        } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+        import { getDatabase, ref, set, update, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+        import { updateProfile as fbUpdateProfile } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: 'AIzaSyD9_vulE5tWDNKQqr6OPCmkFUx8l-Gs1Qg',
+            authDomain: 'perseptra.firebaseapp.com',
+            databaseURL: 'https://perseptra-default-rtdb.firebaseio.com',
+            projectId: 'perseptra',
+            storageBucket: 'perseptra.firebasestorage.app',
+            messagingSenderId: '902121213105',
+            appId: '1:902121213105:web:df5a0b2da4f2b8845de690',
+            measurementId: 'G-WP8V4VRDQP'
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        try {
+            if (await analyticsIsSupported()) {
+                getAnalytics(app);
+            }
+        } catch (err) {
+            console.warn('Analytics not supported in this environment.');
+        }
+
+        const auth = getAuth(app);
+        // Persist auth state locally across reloads
+        setPersistence(auth, browserLocalPersistence).catch(() => {});
+
+        const db = getDatabase(app);
+
+        // Toast utility
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            if (!container) return alert(message);
+            const gradientMap = {
+                success: 'from-emerald-500 to-green-600',
+                error: 'from-rose-500 to-red-600',
+                info: 'from-indigo-500 to-purple-600'
+            };
+            const iconMap = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-triangle',
+                info: 'fa-circle-info'
+            };
+            const toast = document.createElement('div');
+            toast.className = 'pointer-events-auto relative flex items-start gap-3 rounded-xl p-4 shadow-2xl border border-gray-800 bg-gray-900/90 backdrop-blur text-white transform transition-all duration-300 ease-out opacity-0 translate-y-2';
+            toast.innerHTML = `
+                <span class="mt-0.5 h-8 w-1 rounded-full bg-gradient-to-b ${gradientMap[type] || gradientMap.info}"></span>
+                <i class="fas ${iconMap[type] || iconMap.info} text-xl ${type==='success' ? 'text-emerald-400' : type==='error' ? 'text-rose-400' : 'text-indigo-400'}"></i>
+                <div class="text-sm leading-snug pr-6">${message}</div>
+                <button class="absolute top-2 right-2 text-gray-400 hover:text-gray-200" aria-label="Close">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            container.appendChild(toast);
+            // animate in
+            requestAnimationFrame(() => {
+                toast.classList.remove('opacity-0', 'translate-y-2');
+                toast.classList.add('opacity-100', 'translate-y-0');
+            });
+            const remove = () => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 250);
+            };
+            const closeBtn = toast.querySelector('button');
+            closeBtn?.addEventListener('click', remove);
+            setTimeout(remove, 3800);
+        }
+        window.showToast = showToast;
+
+        // Handle Google redirect sign-in results (in case popup is blocked or we fallback)
+        (async () => {
+            try {
+                const redirectResult = await getRedirectResult(auth);
+                if (redirectResult && redirectResult.user) {
+                    await saveUserProfile(redirectResult.user);
+                    if (typeof showPage === 'function') showPage('home');
+                }
+            } catch (e) {
+                console.warn('Google redirect sign-in error:', e);
+            }
+        })();
+
+        function saveUserProfile(user, extra = {}) {
+            const userRef = ref(db, `users/${user.uid}`);
+            const data = {
+                uid: user.uid,
+                name: user.displayName || extra.name || '',
+                email: user.email || '',
+                photoURL: user.photoURL || null,
+                provider: (user.providerData && user.providerData[0] && user.providerData[0].providerId) || 'password',
+                updatedAt: serverTimestamp(),
+                ...extra
+            };
+            return set(userRef, { createdAt: serverTimestamp(), ...data }).catch(() => update(userRef, data));
+        }
+
+        async function loadUserCredits(userId) {
+            try {
+                const response = await fetch(`http://127.0.0.1:5000/get-credits/${userId}`);
+                const data = await response.json();
+                
+                if (data.balance !== undefined) {
+                    // Update all credit displays
+                    const navCredits = document.getElementById('nav-credits');
+                    const navCreditsMobile = document.getElementById('nav-credits-mobile');
+                    const creditsAmount = document.getElementById('credits-amount');
+                    const settingsCredits = document.getElementById('settings-credits');
+                    
+                    if (navCredits) navCredits.textContent = String(data.balance);
+                    if (navCreditsMobile) navCreditsMobile.textContent = String(data.balance);
+                    if (creditsAmount) creditsAmount.textContent = String(data.balance);
+                    if (settingsCredits) settingsCredits.textContent = String(data.balance);
+                    
+                    console.log(`Loaded credits from Firebase: ${data.balance}`);
+                    return data.balance;
+                }
+            } catch (error) {
+                console.error('Error loading credits from Firebase:', error);
+                // Set to 0 if Firebase fails
+                const navCredits = document.getElementById('nav-credits');
+                const navCreditsMobile = document.getElementById('nav-credits-mobile');
+                const creditsAmount = document.getElementById('credits-amount');
+                const settingsCredits = document.getElementById('settings-credits');
+                
+                if (navCredits) navCredits.textContent = '0';
+                if (navCreditsMobile) navCreditsMobile.textContent = '0';
+                if (creditsAmount) creditsAmount.textContent = '0';
+                if (settingsCredits) settingsCredits.textContent = '0';
+                return 0;
+            }
+        }
+
+        async function loadUserContent(userId) {
+            try {
+                const { get, child } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js');
+                const snapshot = await get(child(ref(db), `content/${userId}`));
+                return snapshot.exists() ? snapshot.val() : {};
+            } catch {
+                return {};
+            }
+        }
+
+        // Expose auth helpers to onclick handlers
+        window.signup = async function signup() {
+            const name = document.getElementById('signup-name')?.value?.trim();
+            const email = document.getElementById('signup-email')?.value?.trim();
+            const password = document.getElementById('signup-password')?.value || '';
+            const confirm = document.getElementById('signup-confirm-password')?.value || '';
+            const agreed = document.getElementById('terms')?.checked;
+
+            if (!name) return alert('Please enter your full name.');
+            if (!email) return alert('Please enter your email.');
+            if (password.length < 8) return alert('Password must be at least 8 characters.');
+            if (password !== confirm) return alert('Passwords do not match.');
+            if (!agreed) return alert('Please accept the Terms and Privacy Policy.');
+
+            try {
+                const cred = await createUserWithEmailAndPassword(auth, email, password);
+                await updateProfile(cred.user, { displayName: name });
+                await saveUserProfile(cred.user, { name });
+                
+                // Add initial credits to new user
+                try {
+                    const response = await fetch('http://127.0.0.1:5000/add-credits', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            userId: cred.user.uid,
+                            amount: 50  // Give 50 free credits to new users
+                        })
+                    });
+                    if (response.ok) {
+                        showToast('Account created successfully! You received 50 free credits!', 'success');
+                    } else {
+                        showToast('Account created successfully!', 'success');
+                    }
+                } catch (error) {
+                    console.error('Error adding initial credits:', error);
+                    showToast('Account created successfully!', 'success');
+                }
+                
+                if (typeof showPage === 'function') showPage('home');
+            } catch (err) {
+                const msg = (err && err.code === 'auth/configuration-not-found')
+                    ? 'Email/Password auth is not enabled. In Firebase Console → Authentication → Sign-in method, enable Email/Password.'
+                    : (err && err.code === 'auth/operation-not-allowed')
+                        ? 'Email/Password provider is disabled in Firebase Console.'
+                        : (err && err.message) || 'Sign up failed';
+                showToast(msg, 'error');
+            }
+        };
+
+        window.login = async function login() {
+            const email = document.getElementById('login-email')?.value?.trim();
+            const password = document.getElementById('login-password')?.value || '';
+            if (!email || !password) return alert('Please enter your email and password.');
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                showToast('Logged in successfully!', 'success');
+                if (typeof showPage === 'function') showPage('home');
+            } catch (err) {
+                showToast(err.message || 'Login failed', 'error');
+            }
+        };
+
+        window.loginWithGoogle = async function loginWithGoogle() {
+            const provider = new GoogleAuthProvider();
+            const prefersRedirect = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+                || /Safari/i.test(navigator.userAgent) && !/Chrome/i.test(navigator.userAgent)
+                || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+            if (prefersRedirect) {
+                try {
+                    await signInWithRedirect(auth, provider);
+                    return;
+                } catch (e) {
+                    showToast(e.message || 'Google sign-in (redirect) failed', 'error');
+                    return;
+                }
+            }
+            try {
+                const result = await signInWithPopup(auth, provider);
+                await saveUserProfile(result.user);
+                showToast('Signed in with Google!', 'success');
+                if (typeof showPage === 'function') showPage('home');
+            } catch (err) {
+                // Provide clearer guidance and fallback to redirect if popup not available
+                if (err && (err.code === 'auth/configuration-not-found' || err.code === 'auth/operation-not-allowed')) {
+                    showToast('Google Sign-in is not enabled. In Firebase Console → Authentication → Sign-in method, enable Google.', 'error');
+                    return;
+                }
+                if (err && err.code === 'auth/unauthorized-domain') {
+                    showToast('Unauthorized domain. In Firebase Console → Authentication → Settings → Authorized domains, add your domain (e.g., localhost).', 'error');
+                    return;
+                }
+                try {
+                    await signInWithRedirect(auth, provider);
+                } catch (e) {
+                    showToast(e.message || 'Google sign-in failed', 'error');
+                }
+            }
+        };
+
+        // For this app, Google sign-up is same as Google login
+        window.signupWithGoogle = window.loginWithGoogle;
+
+        window.logout = async function logout() {
+            try {
+                await signOut(auth);
+                // Clear cached user data
+                localStorage.removeItem('cachedUser');
+                localStorage.removeItem('userCredits');
+                showToast('Logged out successfully!', 'success');
+            } catch (err) {
+                showToast(err.message || 'Logout failed', 'error');
+            }
+        };
+
+        // Check for cached auth state to prevent flicker
+        const cachedUser = localStorage.getItem('cachedUser');
+        if (cachedUser) {
+            try {
+                const userData = JSON.parse(cachedUser);
+                // Temporarily show logged-in state while Firebase initializes
+                const so = document.getElementById('auth-signed-out');
+                const si = document.getElementById('auth-signed-in');
+                const soM = document.getElementById('auth-signed-out-mobile');
+                const siM = document.getElementById('auth-signed-in-mobile');
+                
+                if (so) so.classList.add('hidden');
+                if (si) si.classList.remove('hidden');
+                if (soM) soM.classList.add('hidden');
+                if (siM) siM.classList.remove('hidden');
+                
+                // Set user info from cache
+                const name = userData.displayName || (userData.email ? userData.email.split('@')[0] : 'User');
+                const initials = (userData.displayName || name)
+                    .split(' ')
+                    .map(w => w[0])
+                    .join('')
+                    .slice(0, 2)
+                    .toUpperCase();
+                
+                const avatar = document.getElementById('user-avatar');
+                const avatarM = document.getElementById('user-avatar-mobile');
+                const nameEl = document.getElementById('user-display-name');
+                const nameElM = document.getElementById('user-display-name-mobile');
+                
+                if (avatar) avatar.textContent = initials;
+                if (avatarM) avatarM.textContent = initials;
+                if (nameEl) nameEl.textContent = name;
+                if (nameElM) nameElM.textContent = name;
+            } catch (e) {
+                console.warn('Failed to parse cached user data:', e);
+            }
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            const so = document.getElementById('auth-signed-out');
+            const si = document.getElementById('auth-signed-in');
+            const soM = document.getElementById('auth-signed-out-mobile');
+            const siM = document.getElementById('auth-signed-in-mobile');
+            const dailyClaimSignedOut = document.getElementById('daily-claim-signed-out');
+            const dailyClaimSignedIn = document.getElementById('daily-claim-signed-in');
+
+            if (user) {
+                // Cache user data for faster page loads
+                localStorage.setItem('cachedUser', JSON.stringify({
+                    uid: user.uid,
+                    email: user.email,
+                    displayName: user.displayName
+                }));
+                // Desktop
+                so?.classList.add('hidden');
+                si?.classList.remove('hidden');
+                // Mobile
+                soM?.classList.add('hidden');
+                siM?.classList.remove('hidden');
+                // Daily claim popup
+                dailyClaimSignedOut?.classList.add('hidden');
+                dailyClaimSignedIn?.classList.remove('hidden');
+                
+                // Check if user can claim daily credits and show popup
+                setTimeout(() => {
+                    checkAndShowDailyClaimPopup(user.uid);
+                }, 1000); // Show after 1 second
+
+                const name = user.displayName || (user.email ? user.email.split('@')[0] : 'User');
+                const initials = (user.displayName || name)
+                    .split(' ')
+                    .map(w => w[0])
+                    .join('')
+                    .slice(0, 2)
+                    .toUpperCase();
+                const avatar = document.getElementById('user-avatar');
+                const avatarM = document.getElementById('user-avatar-mobile');
+                const nameEl = document.getElementById('user-display-name');
+                const nameElM = document.getElementById('user-display-name-mobile');
+                if (avatar) avatar.textContent = initials;
+                if (avatarM) avatarM.textContent = initials;
+                if (nameEl) nameEl.textContent = name;
+                if (nameElM) nameElM.textContent = name;
+                // Prefill settings + header card
+                const settingsName = document.getElementById('settings-name');
+                const settingsEmail = document.getElementById('settings-email');
+                if (settingsName) settingsName.value = name;
+                if (settingsEmail) settingsEmail.value = user.email || '';
+                const settingsInitials = name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+                const sName = document.getElementById('settings-profile-name');
+                const sEmail = document.getElementById('settings-profile-email');
+                const sInitials = document.getElementById('settings-initials');
+                if (sName) sName.textContent = name;
+                if (sEmail) sEmail.textContent = user.email || '';
+                if (sInitials) sInitials.textContent = settingsInitials;
+
+                // Load credits and content counts
+                loadUserCredits(user.uid).then((balance) => {
+                    const amt = document.getElementById('credits-amount');
+                    if (amt) amt.textContent = String(balance);
+                    const sCred = document.getElementById('settings-credits');
+                    if (sCred) sCred.textContent = String(balance);
+                    const navCredits = document.getElementById('nav-credits');
+                    if (navCredits) navCredits.textContent = String(balance);
+                    const navCreditsMobile = document.getElementById('nav-credits-mobile');
+                    if (navCreditsMobile) navCreditsMobile.textContent = String(balance);
+                    
+                    // Store in localStorage for persistence
+                    localStorage.setItem('userCredits', String(balance));
+                });
+                loadUserContent(user.uid).then((items) => {
+                    const grid = document.getElementById('my-content-grid');
+                    const empty = document.getElementById('my-content-empty');
+                    if (!grid || !empty) return;
+                    grid.innerHTML = '';
+                    const entries = Object.values(items || {});
+                    if (!entries.length) {
+                        empty.classList.remove('hidden');
+                        return;
+                    }
+                    empty.classList.add('hidden');
+                    const sItems = document.getElementById('settings-items');
+                    if (sItems) sItems.textContent = String(entries.length);
+                    entries.forEach((it) => {
+                        const card = document.createElement('div');
+                        card.className = 'rounded-xl overflow-hidden border border-gray-800 bg-gray-900/50';
+                        if (it.type === 'video') {
+                            card.innerHTML = `<video class="w-full aspect-video" controls src="${it.url}"></video>
+                                <div class="p-3 text-sm text-gray-300">${it.prompt || 'Video'}</div>`;
+                            card.dataset.type = 'video';
+                        } else {
+                            card.innerHTML = `<img class="w-full aspect-video object-cover" src="${it.url}" alt=""/>
+                                <div class="p-3 text-sm text-gray-300">${it.prompt || 'Image'}</div>`;
+                            card.dataset.type = 'image';
+                        }
+                        grid.appendChild(card);
+                    });
+                });
+            } else {
+                so?.classList.remove('hidden');
+                si?.classList.add('hidden');
+                soM?.classList.remove('hidden');
+                siM?.classList.add('hidden');
+                // Daily claim popup
+                dailyClaimSignedOut?.classList.remove('hidden');
+                dailyClaimSignedIn?.classList.add('hidden');
+                
+                // Hide popup when user signs out
+                hideDailyClaimPopup();
+            }
+        });
+
+        // Settings: save display name
+        document.getElementById('settings-save')?.addEventListener('click', async () => {
+            const user = auth.currentUser;
+            if (!user) {
+                showToast('You must be signed in to save settings.', 'error');
+                return;
+            }
+            const newName = document.getElementById('settings-name')?.value?.trim();
+            if (!newName) return showToast('Name cannot be empty.', 'error');
+            try {
+                await fbUpdateProfile(user, { displayName: newName });
+                await saveUserProfile(user, { name: newName });
+                showToast('Profile updated!', 'success');
+                // Refresh visible name/avatar
+                const nameEl = document.getElementById('user-display-name');
+                const nameElM = document.getElementById('user-display-name-mobile');
+                const avatar = document.getElementById('user-avatar');
+                const avatarM = document.getElementById('user-avatar-mobile');
+                const initials = newName.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+                if (nameEl) nameEl.textContent = newName;
+                if (nameElM) nameElM.textContent = newName;
+                if (avatar) avatar.textContent = initials;
+                if (avatarM) avatarM.textContent = initials;
+            } catch (e) {
+                showToast(e.message || 'Failed to update profile.', 'error');
+            }
+        });
+
+        // Add test credits function
+        window.addTestCredits = async function() {
+            const user = auth.currentUser;
+            if (!user) {
+                showToast('Please log in first.', 'error');
+                return;
+            }
+            
+                            try {
+                    const response = await fetch('http://127.0.0.1:5000/add-credits', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            userId: user.uid,
+                            amount: 100
+                        })
+                    });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showToast(`Added 100 test credits! New balance: ${data.newBalance}`, 'success');
+                    
+                    // Update all credit displays
+                    const navCredits = document.getElementById('nav-credits');
+                    const navCreditsMobile = document.getElementById('nav-credits-mobile');
+                    const creditsAmount = document.getElementById('credits-amount');
+                    const settingsCredits = document.getElementById('settings-credits');
+                    
+                    if (navCredits) navCredits.textContent = String(data.newBalance);
+                    if (navCreditsMobile) navCreditsMobile.textContent = String(data.newBalance);
+                    if (creditsAmount) creditsAmount.textContent = String(data.newBalance);
+                    if (settingsCredits) settingsCredits.textContent = String(data.newBalance);
+                } else {
+                    showToast('Failed to add test credits', 'error');
+                }
+            } catch (error) {
+                console.error('Error adding test credits:', error);
+                showToast('Error adding test credits', 'error');
+            }
+        };
+
+        // Check and show daily claim popup
+        async function checkAndShowDailyClaimPopup(userId) {
+            try {
+                console.log('Checking daily claim status for user:', userId);
+                const response = await fetch(`http://127.0.0.1:5000/get-credits/${userId}`);
+                const data = await response.json();
+                
+                console.log('Daily claim response:', data);
+                
+                if (response.ok && data.canClaimDaily) {
+                    console.log('User can claim daily credits, showing popup');
+                    // Only show popup if user can claim daily credits
+                    setTimeout(() => {
+                        showDailyClaimPopup();
+                    }, 1000); // Show after 1 second
+                } else {
+                    console.log('User cannot claim daily credits today');
+                }
+            } catch (error) {
+                console.error('Error checking daily claim status:', error);
+            }
+        }
+
+        // Show daily claim popup
+        window.showDailyClaimPopup = function() {
+            const popup = document.getElementById('daily-claim-popup');
+            console.log('Showing daily claim popup:', popup);
+            if (popup) {
+                popup.style.opacity = '1';
+                popup.style.transform = 'translateX(0)';
+                popup.style.pointerEvents = 'auto';
+                console.log('Popup should now be visible');
+            } else {
+                console.error('Daily claim popup element not found');
+            }
+        };
+
+        // Hide daily claim popup
+        window.hideDailyClaimPopup = function() {
+            const popup = document.getElementById('daily-claim-popup');
+            if (popup) {
+                popup.style.opacity = '0';
+                popup.style.transform = 'translateX(100%)';
+                popup.style.pointerEvents = 'none';
+            }
+        };
+
+        // Claim daily credits function
+        window.claimDailyCredits = async function() {
+            const user = auth.currentUser;
+            if (!user) {
+                showToast('Please log in first.', 'error');
+                return;
+            }
+            
+            console.log('Claiming daily credits for user:', user.uid);
+            
+            const claimBtn = document.getElementById('claim-daily-btn');
+            
+            // Disable button and show loading
+            claimBtn.disabled = true;
+            claimBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Claiming...';
+            
+            try {
+                console.log('Making request to /claim-daily-credits');
+                
+                // First test if server is reachable
+                const testResponse = await fetch('http://127.0.0.1:5000/test-claim');
+                console.log('Test response:', testResponse.status);
+                
+                const response = await fetch('http://127.0.0.1:5000/claim-daily-credits', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        userId: user.uid
+                    })
+                });
+                
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                
+                const responseText = await response.text();
+                console.log('Response text:', responseText);
+                
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (parseError) {
+                    console.error('JSON parse error:', parseError);
+                    throw new Error('Invalid JSON response from server');
+                }
+                console.log('Response data:', data);
+                
+                if (response.ok && data.success) {
+                    showToast(`🎉 ${data.message} +${data.creditsAdded} credits!`, 'success');
+                    
+                    // Update all credit displays
+                    const navCredits = document.getElementById('nav-credits');
+                    const navCreditsMobile = document.getElementById('nav-credits-mobile');
+                    const creditsAmount = document.getElementById('credits-amount');
+                    const settingsCredits = document.getElementById('settings-credits');
+                    
+                    if (navCredits) navCredits.textContent = String(data.newBalance);
+                    if (navCreditsMobile) navCreditsMobile.textContent = String(data.newBalance);
+                    if (creditsAmount) creditsAmount.textContent = String(data.newBalance);
+                    if (settingsCredits) settingsCredits.textContent = String(data.newBalance);
+                    
+                    // Update Firebase directly - no localStorage needed
+                    console.log(`Credits updated in Firebase: ${data.newBalance}`);
+                    
+                    // Hide popup after successful claim
+                    setTimeout(() => {
+                        hideDailyClaimPopup();
+                    }, 1500);
+                    
+                } else if (response.ok && !data.success) {
+                    console.error('Claim failed:', data);
+                    showToast(data.error || 'Failed to claim daily credits', 'error');
+                    
+                    // Reset button
+                    claimBtn.disabled = false;
+                    claimBtn.innerHTML = '<i class="fas fa-gift mr-2"></i>Claim 15 Credits';
+                } else if (!response.ok) {
+                    console.error('Claim failed with status:', response.status);
+                    
+                    // Check if it's the specific case of already claimed today
+                    if (response.status === 400 && data && data.error) {
+                        if (data.error.includes('already claimed') || data.error.includes('already claimed your daily credits')) {
+                            showToast('🎁 You\'ve already claimed your daily gift today! Come back tomorrow for more credits.', 'info');
+                            
+                            // Hide popup after showing the message
+                            setTimeout(() => {
+                                hideDailyClaimPopup();
+                            }, 3000);
+                        } else {
+                            showToast(data.error, 'error');
+                        }
+                    } else if (data && data.error) {
+                        showToast(data.error, 'error');
+                    } else {
+                        showToast(`Failed to claim daily credits (${response.status})`, 'error');
+                    }
+                    
+                    // Reset button
+                    claimBtn.disabled = false;
+                    claimBtn.innerHTML = '<i class="fas fa-gift mr-2"></i>Claim 15 Credits';
+                }
+            } catch (error) {
+                console.error('Error claiming daily credits:', error);
+                console.error('Error details:', error.message);
+                showToast('Error claiming daily credits: ' + error.message, 'error');
+                
+                // Reset button
+                claimBtn.disabled = false;
+                claimBtn.innerHTML = '<i class="fas fa-gift mr-2"></i>Claim 15 Credits';
+            }
+        };
+    </script>
+</body>
+</html>
